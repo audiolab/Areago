@@ -2,6 +2,7 @@
 
     <string name="app_name">Areago</string>
     <string name="hello_world">Testing Areago</string>
+    <string name="loading_data">Cargando datos</string>
     <string name="menu_settings">Setting</string>
     <string name="title_activity_main">Areago</string>
 
