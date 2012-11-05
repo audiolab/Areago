@@ -1,5 +1,4 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/menu_settings"
-        android:title="@string/menu_settings"
-        android:orderInCategory="100" />
+    <item android:id="@+id/preferences" android:visible="true" android:title="Preferences" android:orderInCategory="100" android:onClick="stopRecording"></item>
+    <item android:id="@+id/exit" android:title="Exit" android:visible="true" android:onClick="startRecording"></item>
 </menu>

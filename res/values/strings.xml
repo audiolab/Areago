@@ -1,9 +1,14 @@
 <resources>
 
     <string name="app_name">Areago</string>
-    <string name="hello_world">Testing Areago</string>
     <string name="loading_data">Cargando datos</string>
-    <string name="menu_settings">Setting</string>
+    <string name="menu_settings">Opciones</string>
     <string name="title_activity_main">Areago</string>
 
+    <string-array name="paseos_array">
+        <item>Paseo 1</item>
+        <item>Paseo 2</item>
+        <item>Paseo 3</item>
+    </string-array>
+    
 </resources>
