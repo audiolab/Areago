@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/lbltitulo"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Nombre:" />
+    
+    <TextView
+        android:id="@+id/titulo"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="" />
+
+    <TextView
+        android:id="@+id/lbldescripcion"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Descripcion:" />
+    
+    <TextView
+        android:id="@+id/descripcion"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="" />
+
+    <TextView
+        android:id="@+id/lblidioma"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Idioma:" />
+    
+    <TextView
+        android:id="@+id/idioma"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="" />
+
+    <Button
+        android:id="@+id/descargar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Descargar" />
+
+    <Button
+        android:id="@+id/ejecutar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Iniciar" />
+
+</LinearLayout>
