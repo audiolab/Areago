@@ -3,15 +3,30 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:baselineAligned="true"
-    android:orientation="horizontal" >
+    android:orientation="vertical" >
 
-    <ImageButton
-        android:id="@+id/button1"
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="319dp"
-        android:layout_height="306dp"
-        android:layout_gravity="center"
-        android:onClick="onClick"
-        android:src="@drawable/brujula" />
+    <ImageView
+                android:id="@+id/imageView1"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:src="@drawable/audifonos"
+                android:onClick="onClick" />
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Areago Audio Route" />
+    
+    <TextView
+        android:id="@+id/wireless"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="" />
+    <TextView
+        android:id="@+id/gps"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="" />
 
 </LinearLayout>
