@@ -41,7 +41,12 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        
+        <activity android:name=".AreagoPreferences" android:label="Preferencias">
+            <intent-filter>
+                <action android:name="com.audiolab.areago.AreagoPreferences"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
         
         
         

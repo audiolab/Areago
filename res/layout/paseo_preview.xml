@@ -29,27 +29,15 @@
         android:text="" />
 
     <TextView
-        android:id="@+id/lblidioma"
+        android:id="@+id/gps"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Idioma:" />
+        android:text="" />
     
     <TextView
         android:id="@+id/idioma"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="" />
-
-    <Button
-        android:id="@+id/descargar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Descargar" />
-
-    <Button
-        android:id="@+id/ejecutar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Iniciar" />
 
 </LinearLayout>

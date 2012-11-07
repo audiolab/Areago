@@ -1,5 +1,7 @@
 package com.audiolab.areago;
 
+
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -10,6 +12,7 @@ import java.net.URLConnection;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -67,7 +70,13 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         findViewById(R.id.imageView1).setClickable(false);
         
+        //Cargar datos de las preferencias par las globales
+        SharedPreferences appPrefs = getSharedPreferences("com.audiolab.areago_preferences",MODE_PRIVATE);
         
+        url = appPrefs.getString("editUrlServer", "");
+        Toast.makeText(getBaseContext(),url,Toast.LENGTH_LONG).show();
+        
+        		
         setTitle("AREAGO : Inicio");
         //Wireless
         dialog = ProgressDialog.show(this,"Comprobando Wifi","Espera...",true);
@@ -84,16 +93,17 @@ public class MainActivity extends Activity {
         //GPS
         ((TextView)findViewById(R.id.gps)).setText("Inciando recepción de datos GPS");
         init_gps();
-        
     }
+
     
     private void init_gps() {
-		// TODO Auto-generated method stub
+    	// TODO Auto-generated method stub
     	locManager = (LocationManager) getSystemService(LOCATION_SERVICE);
     	locationListener = new AreagoLocationListener();
+    	
     	Criteria crit = new Criteria();
     	crit.setAccuracy(Criteria.ACCURACY_FINE);
-    	locManager.getLastKnownLocation(locManager.getBestProvider(crit, true));
+    	locManager.getLastKnownLocation(locManager.getBestProvider(crit, true));	
 	}
 
     private class AreagoLocationListener implements LocationListener {
@@ -227,7 +237,9 @@ public void onPause() {
 	    // Handle item selection
 	    switch (item.getItemId()) {
 	    	case R.id.preferences:
-	    		Toast.makeText(this,"En construcción..",Toast.LENGTH_LONG).show();
+	    		//Toast.makeText(this,"En construcción..",Toast.LENGTH_LONG).show();
+	    		Intent i = new Intent("com.audiolab.areago.AreagoPreferences");
+	    		startActivity(i);
 	    		return true;
 	    	case R.id.exit:
 	    		System.exit(0);

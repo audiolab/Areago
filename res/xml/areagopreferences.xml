@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    <PreferenceCategory android:title="Preferencias">
+    	<EditTextPreference android:summary="URL del servidor de paseos"
+    	    android:defaultValue="http://www.xavierbalderas.com/areago/areago/listado"
+    	    android:title="Direccion del servidor de paseos"
+    	    android:key="editUrlServer"/>   
+	</PreferenceCategory>
+</PreferenceScreen>
