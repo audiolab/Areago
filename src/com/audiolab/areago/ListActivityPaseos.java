@@ -136,7 +136,9 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 
 				JSONObject jObject = jArray.getJSONObject(i);
 
-				Paseo walk = new Paseo(jObject.getInt("id"),jObject.getString("name"),jObject.getString("description"));
+				Paseo walk = new Paseo(jObject.getInt("id"));
+				walk.setTitle(jObject.getString("name"));
+				walk.setDescription(jObject.getString("description"));
 				//walk.hash = jObject.getInt("hash");
 
 			if (!walk.exist(walks)) {
@@ -153,7 +155,12 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 
 	private void get_PaseosDescargados() {
 		// TODO Auto-generated method stub
-		or = Environment.getExternalStorageDirectory();
+		try {
+			or = Environment.getExternalStorageDirectory();
+		}
+		catch (RuntimeException e) {
+			Log.d("AREAGO","Error al cargar el sistema de ficheros externo");
+		}
         fold = new File(or.getAbsolutePath() + "/areago");
         if (!fold.isDirectory()) fold.mkdir();
         File[] fpaseos = fold.listFiles();
@@ -164,10 +171,11 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
         
         for (int i = 0; i<fpaseos.length; i++) {
         	Writer writer = new StringWriter();
+        	if ( fpaseos[i].isDirectory() ) {
         	try {
         		File jsondata = new File(fpaseos[i]+"/data.json");
-        		Log.d("AREAGO","File paseo: "+fpaseos[i]);
-        		StringBuilder text = new StringBuilder();
+        		//Log.d("AREAGO","File paseo: "+fpaseos[i]);
+        		//StringBuilder text = new StringBuilder();
         		
         		
         		char[] buffer = new char[1024];
@@ -176,6 +184,7 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
         		while ((n = reader.read(buffer)) != -1) {
         			writer.write(buffer,0,n);
         		}
+        		reader.close();
         		
         	} catch (Exception e) {
         		Log.d("AREAGO","Error: "+e);
@@ -189,12 +198,15 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
        		try {
 				JSONObject jObject = new JSONObject(JSONString);
 				
-				Paseo walk = new Paseo(jObject.getInt("id"),jObject.getString("name"),jObject.getString("description"));
+				Paseo walk = new Paseo(jObject.getInt("id"));
+				walk.setTitle(jObject.getString("name"));
+				walk.setDescription(jObject.getString("description"));
 				walk.hash = jObject.getInt("hash");
+				walk.JsonPoints = jObject.getString("puntos");
 				walks.add(walk);
 				
 				Log.d("AREAGO","Cargando el paseo: "+walk.titulo);
-				Log.d("AREAGO","String: "+JSONString);
+				
 				
 //				listINFO.add(jObject.getString("name"));
 				
@@ -202,6 +214,7 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+        	}
   
         }
 	}

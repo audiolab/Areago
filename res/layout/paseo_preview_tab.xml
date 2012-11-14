@@ -1,28 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-
-
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:orientation="vertical" >
-
-    <ScrollView
-        android:id="@+id/scrollView1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+<HorizontalScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/horizontalScrollView1"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" >
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical" >
-        
+            android:id="@+id/layout_general">
+       
+            
+            <ListView android:id="@+id/android:list"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
 
+            <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/layout_general"
+            android:orientation="vertical">
+            
     <TextView
         android:id="@+id/lbltitulo"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Nombre:" />
+        android:text="Nombre:"
+        android:textStyle="bold"/>
 
     <TextView
         android:id="@+id/titulo"
@@ -41,6 +44,16 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="" />
+
+        
+</LinearLayout>
+
+                        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/layout_general"
+            android:orientation="vertical">
+
 
     <TextView
         android:id="@+id/gps"
@@ -66,15 +79,10 @@
         android:layout_height="wrap_content"
         android:text="" />
     
-    <ImageView
-        android:id="@+id/imageView1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/brujula" />
-
-    </LinearLayout>
-    </ScrollView>
-
-    
-
 </LinearLayout>
+                
+                
+</ListView>
+</LinearLayout>
+
+    </HorizontalScrollView>

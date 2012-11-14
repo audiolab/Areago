@@ -67,43 +67,59 @@ public class MainActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main);        
         findViewById(R.id.imageView1).setClickable(false);
-        
+
         //Cargar datos de las preferencias par las globales
         SharedPreferences appPrefs = getSharedPreferences("com.audiolab.areago_preferences",MODE_PRIVATE);
         
         url = appPrefs.getString("editUrlServer", "");
-        Toast.makeText(getBaseContext(),url,Toast.LENGTH_LONG).show();
-        
+        if ( url == "") {
+        	Toast.makeText(getBaseContext(),"No está configurado el servidor de descarga de paseos. Configuramos con el servidor por defecto.",Toast.LENGTH_LONG).show();
+        	// TODO: Crear dialogo para acceptar el servidor por defecto
+        	SharedPreferences.Editor prefEditor = appPrefs.edit();
+        	prefEditor.putString("editUrlServer", "http://www.xavierbalderas.com/areago/areago/listado");
+        }
         		
         setTitle("AREAGO : Inicio");
         //Wireless
         dialog = ProgressDialog.show(this,"Comprobando Wifi","Espera...",true);
         
+        
         if (!init_wireless()) { 
-        	((TextView)findViewById(R.id.wireless)).setText("Wireless Inactivo");
+        	((TextView)findViewById(R.id.wireless)).setText("Wireless Inactivo. No podras descargar paseos nuevos.");
+        	
         }
         else { 
         	((TextView)findViewById(R.id.wireless)).setText("Wireless Activado");
-        	findViewById(R.id.imageView1).setClickable(true);
         	}
+        findViewById(R.id.imageView1).setClickable(true);
         dialog.dismiss();
         
         //GPS
-        ((TextView)findViewById(R.id.gps)).setText("Inciando recepción de datos GPS");
-        init_gps();
+        dialog = ProgressDialog.show(this,"Comprobando GPS","Espera...",true);
+        ((TextView)findViewById(R.id.gps)).setText("GPS Activado");
+        if (!init_gps()) {
+        	((TextView)findViewById(R.id.gps)).setText("Está apagado el dispositivo GPS. Debe arrancarlo para inciar los paseos.");
+        	findViewById(R.id.imageView1).setClickable(false);
+        }
+        dialog.dismiss();
     }
 
     
-    private void init_gps() {
+    private boolean init_gps() {
     	// TODO Auto-generated method stub
     	locManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+    	if ( !locManager.isProviderEnabled("gps") ) return false;
+    	// Lo desactivo mientras no gestionemos aquí la carga el punto donde se encuentra el paseante.
+    	/* 
     	locationListener = new AreagoLocationListener();
     	
     	Criteria crit = new Criteria();
     	crit.setAccuracy(Criteria.ACCURACY_FINE);
-    	locManager.getLastKnownLocation(locManager.getBestProvider(crit, true));	
+    	locManager.getLastKnownLocation(locManager.getBestProvider(crit, true));
+    	*/
+    	return true;
 	}
 
     private class AreagoLocationListener implements LocationListener {
@@ -122,14 +138,14 @@ public class MainActivity extends Activity {
     	public void onProviderDisabled(String provider) {
     		// TODO Auto-generated method stub
     		((TextView)findViewById(R.id.gps)).setText(provider+" desconectado");
-    		findViewById(R.id.imageView1).setClickable(false);
+    		
     		
     	}
 
     	public void onProviderEnabled(String provider) {
     		// TODO Auto-generated method stub
     		((TextView)findViewById(R.id.gps)).setText("GPS Conectado:"+provider);
-    		if (findViewById(R.id.imageView1).isClickable()) findViewById(R.id.imageView1).setClickable(true);
+    		
 
     	}
 
@@ -161,12 +177,12 @@ public class MainActivity extends Activity {
 public void onResume() {
 
 	super.onResume();
-	locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+	//locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
 }
 
 public void onPause() {
 	super.onPause();
-	locManager.removeUpdates(locationListener);
+	//locManager.removeUpdates(locationListener);
 }
 
 	public void onClick(View view) {
@@ -176,8 +192,8 @@ public void onPause() {
     				new Thread(new Runnable(){
     					public void run(){
     					try {
-    							//Thread.sleep(5000);
-    							string = init_rutas();
+    							// TODO: Activar cuando esté en funcionamiento la web
+    							//string = init_rutas();
     							Intent i = new Intent("com.audiolab.areago.ListActivityPaseos");
     		        			i.putExtra("json", string);
     		        			i.putExtra("lat", lat);
