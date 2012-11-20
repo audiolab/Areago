@@ -1,6 +1,10 @@
 package com.audiolab.areago;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -9,7 +13,6 @@ import org.json.JSONObject;
 import android.location.Location;
 import android.location.LocationManager;
 import android.util.Log;
-import android.content.Context;
 
 public class Paseo {
 	
@@ -20,15 +23,18 @@ public class Paseo {
 	int num_grabaciones;
 	int tamano;
 	SoundPoint pref = new SoundPoint("paseo_reference"); // Punto de referencia de inicio / lat-lon
-	int hash;
-	boolean update;
+	int hash = -1;
+	boolean update=false; // ya está descargado pero necesita ser actualizado porque el hash es diferente
+	boolean downlad=false; // necesita ser descargado?
 	String JsonPoints; // Listado de puntos del mapa en Json Array
 	ArrayList<SoundPoint> puntos = new ArrayList<SoundPoint>();
 	
+	// Creadoras
 	public Paseo(int id) {
 		this.id = id;
 	}
 	
+	// Modificadoras
 	public void setTitle(String t) {
 		this.titulo = t;
 	}
@@ -37,10 +43,28 @@ public class Paseo {
 		this.descripcion = d;
 	}
 	
+	// Consultoras
 	public String getTitle() {
 		return this.titulo; 
 	}
 	
+	public int getId() {
+		return this.id;
+	}
+	
+	public String getDescription() {
+		return this.descripcion;
+	}
+	
+	public boolean isUpdate() { //esta actualizado? false no está actualizado 
+		return this.update;
+	}
+	
+	public boolean isDownload() { // esta descargado?
+		return this.downlad;
+	}
+	
+	// Acciones
 	public void stop() {
 		for (int i = 0; i<this.puntos.size(); i++) {
 			this.puntos.get(i).stopSoundFile();
@@ -66,7 +90,7 @@ public class Paseo {
 				p.setSoundFile(jObject.getString("file"));
 				p.setId(jObject.getInt("id"));
 				p.setType(jObject.getInt("type")); // TODO: Leerlo del JSON
-				this.puntos.add(jObject.getInt("id"), p);
+				this.puntos.add(p);
 			} 
 		
 		} catch (JSONException e) {
@@ -88,20 +112,19 @@ public class Paseo {
 		}
 	}
 	
-	public boolean exist(ArrayList<Paseo> walks) {
-		// TODO Auto-generated method stub
-		
-		for (int i=0; i<walks.size(); i++) {
-			if (walks.get(i).id == this.id) {
-				if (walks.get(i).hash != this.hash) {
-					// se debe actualizar
-					walks.get(i).update=true;
-					return true;
-				} else { return true; }
-			}
-		}
-		
-		return false;
+	//public boolean exist(ArrayList<Paseo> walks) {
+	public boolean exist(HashMap walks) {
+		if (walks.get(this.id) != null) { // ya está mapeado un paseo con ese ID
+			Paseo p = (Paseo) walks.get(this.id);
+				/*if (this.hash != -1) { // si tiene hash... 
+					if (p.hash != this.hash) { // se debe actualizar
+						p.update = false; // marcamos como no actualizado
+						walks.put(this.id, p); // actualizamos el paseo en el hash
+					}
+					
+				}*/
+			return true;
+		} else { return false; }
 	}
 	
 }

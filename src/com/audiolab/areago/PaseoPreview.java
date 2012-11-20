@@ -46,7 +46,7 @@ public class PaseoPreview extends Activity  {
 		walk = new Paseo(getIntent().getIntExtra("id", 0));
 		walk.setTitle(getIntent().getStringExtra("titulo"));
 		walk.setDescription(getIntent().getStringExtra("descripcion"));
-		walk.create_points(JSONPoints);
+		if (JSONPoints.length()>0) { walk.create_points(JSONPoints); } else {Toast.makeText(this,"Este paseo no tiene puntos",Toast.LENGTH_LONG).show();}
 		
 		
 		((TextView)findViewById(R.id.titulo)).setText(getIntent().getStringExtra("titulo"));

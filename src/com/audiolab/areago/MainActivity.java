@@ -193,7 +193,7 @@ public void onPause() {
     					public void run(){
     					try {
     							// TODO: Activar cuando esté en funcionamiento la web
-    							//string = init_rutas();
+    							string = init_rutas();
     							Intent i = new Intent("com.audiolab.areago.ListActivityPaseos");
     		        			i.putExtra("json", string);
     		        			i.putExtra("lat", lat);
