@@ -61,20 +61,20 @@ public class PaseoPreview extends Activity  {
     	
     	//Wifi
     	//setup wifi
-    	wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-    	
-    	
-    	//wifi info
-    	WifiInfo info = wifi.getConnectionInfo();
-		((TextView)findViewById(R.id.wifi)).setText("WiFi Status: " + info.toString());
-		//wifi_connections
-		
-		
-		// Register Broadcast Receiver
-		if (receiver == null) receiver = new WiFiScanReceiver(this);
-		registerReceiver(receiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
-		
-		wifi.startScan();
+//    	wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+//    	
+//    	
+//    	//wifi info
+//    	WifiInfo info = wifi.getConnectionInfo();
+//		((TextView)findViewById(R.id.wifi)).setText("WiFi Status: " + info.toString());
+//		//wifi_connections
+//		
+//		
+//		// Register Broadcast Receiver
+//		if (receiver == null) receiver = new WiFiScanReceiver(this);
+//		registerReceiver(receiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+//		
+//		wifi.startScan();
 	}
     	
 	public void onResume() {
@@ -92,7 +92,7 @@ public class PaseoPreview extends Activity  {
 	public void onStop() {
 		super.onStop();
 		this.walk.stop();
-		unregisterReceiver(receiver);
+		//unregisterReceiver(receiver);
 	}
 	
 	// INFO: Gestión del GPS
@@ -108,7 +108,8 @@ public class PaseoPreview extends Activity  {
     			
     			// Miramos si el punto actual está dentro del radio de acción de algun punto del paseo.
     			// Si nos hemos movido
-    			walk.check_collisions(nl);
+    			String info = walk.check_collisions(nl);
+    			((TextView)findViewById(R.id.log_view)).setText(info);
     			}
     		}
 

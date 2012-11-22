@@ -90,6 +90,7 @@ public class Paseo {
 				p.setSoundFile(jObject.getString("file"));
 				p.setId(jObject.getInt("id"));
 				p.setType(jObject.getInt("type")); // TODO: Leerlo del JSON
+				p.setFolder("/mnt/sdcard/Areago/"+this.getId());
 				this.puntos.add(p);
 			} 
 		
@@ -105,11 +106,14 @@ public class Paseo {
 		this.pref.setLongitude(lon);
 	}
 	
-	public void check_collisions(Location l) {
+	public String check_collisions(Location l) {
 		// Recorre los puntos del mapa y revisa si estamos dentro del radio de uno de ellos
+		String p = "";
 		for (int i = 0; i<this.puntos.size(); i++){
 			this.puntos.get(i).checkColision(l);
+			p = p + " | "+this.puntos.get(i).getFolder()+"/"+this.puntos.get(i).getSoundFile();
 		}
+		return p;
 	}
 	
 	//public boolean exist(ArrayList<Paseo> walks) {

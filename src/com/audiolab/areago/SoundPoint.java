@@ -117,7 +117,7 @@ public class SoundPoint extends Location {
 					break;
 				case STATUS_PAUSED :
 					// Volvemos a ejecutar el audio.
-					// REVISAR LA RAZON DE ESTE CASO
+					// REVISAR LA RAZON DE ESTE CASO ... posibilidad de 
 					//this.mediaPlay();
 					break;
 			}
@@ -135,9 +135,10 @@ public class SoundPoint extends Location {
 					this.mediaStop(); 
 					break;
 				case STATUS_PAUSED :
-					// LO SEGUIMOS DEJANDO PARADO?
+					// LO SEGUIMOS DEJANDO PAUSADO?
 					break;
 			}
+			this.played = false; // Si estamos fuera del radio ya podemos volver a darle para que suene al volver a entrar
 			// HABRÍA QUE MARCAR QUE ESTA FUERA DEL CIRCULO?
 			return false;
 		}
@@ -151,6 +152,16 @@ public class SoundPoint extends Location {
 		this.mp.stop();
 		this.mp.release();
 		status=STATUS_STOPPED;
+	}
+	
+	private void pauseSoundFile() {
+		this.mp.pause();
+		status=STATUS_PAUSED;
+	}
+	
+	private void unpauseSoundFile() {
+		this.mp.start();
+		status=STATUS_PLAYING;
 	}
 	
 	private void mediaPlay(){
@@ -175,8 +186,16 @@ public class SoundPoint extends Location {
 		this.mp.setVolume(1.0f, 1.0f);
 		this.mp.start();
 		
-		status=STATUS_PLAYING;
-		played=true;
+		this.status=STATUS_PLAYING;
+		this.played=true;
+		
+//		this.mp.setOnSeekCompleteListener(new MediaPlayer.OnSeekCompleteListener() {
+//			
+//			public void onSeekComplete(MediaPlayer mp) {
+//				// TODO Auto-generated method stub
+//				
+//			}
+//		});
 		
 		this.mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
 			public void onCompletion(MediaPlayer arg0) {

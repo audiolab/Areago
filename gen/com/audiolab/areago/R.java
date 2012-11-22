@@ -21,15 +21,16 @@ public final class R {
     }
     public static final class id {
         public static final int descripcion=0x7f090008;
-        public static final int exit=0x7f09000f;
+        public static final int exit=0x7f090010;
         public static final int gps=0x7f090003;
-        public static final int horizontalScrollView1=0x7f09000c;
+        public static final int horizontalScrollView1=0x7f09000d;
         public static final int idioma=0x7f09000b;
         public static final int imageView1=0x7f090000;
-        public static final int layout_general=0x7f09000d;
+        public static final int layout_general=0x7f09000e;
         public static final int lbldescripcion=0x7f090007;
         public static final int lbltitulo=0x7f090005;
-        public static final int preferences=0x7f09000e;
+        public static final int log_view=0x7f09000c;
+        public static final int preferences=0x7f09000f;
         public static final int scrollView1=0x7f090004;
         public static final int textView1=0x7f090001;
         public static final int titulo=0x7f090006;
