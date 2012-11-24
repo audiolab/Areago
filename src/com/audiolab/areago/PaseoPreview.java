@@ -1,21 +1,18 @@
 package com.audiolab.areago;
 
-import java.util.List;
-
 import android.app.Activity;
+import android.app.KeyguardManager;
+import android.app.KeyguardManager.KeyguardLock;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
-import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,13 +27,20 @@ public class PaseoPreview extends Activity  {
 	WifiManager wifi;
 	TextView status;
 	WifiConfiguration wifiConf;
-	
+	Vibrator v;
 	
 	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.paseo_preview); 
 		setTitle("AREAGO : "+getIntent().getStringExtra("titulo"));
+		
+		//gestion bloqueo pantalla
+		KeyguardManager  myKeyGuard = (KeyguardManager)getSystemService(Context.KEYGUARD_SERVICE);
+		KeyguardLock lock = myKeyGuard.newKeyguardLock(KEYGUARD_SERVICE);
+        lock.disableKeyguard();
+        
+        v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 		
 		String JSONPoints = getIntent().getStringExtra("json");
 		String lat = getIntent().getStringExtra("lat");
@@ -46,6 +50,7 @@ public class PaseoPreview extends Activity  {
 		walk = new Paseo(getIntent().getIntExtra("id", 0));
 		walk.setTitle(getIntent().getStringExtra("titulo"));
 		walk.setDescription(getIntent().getStringExtra("descripcion"));
+		walk.setVibrator(v);
 		if (JSONPoints.length()>0) { walk.create_points(JSONPoints); } else {Toast.makeText(this,"Este paseo no tiene puntos",Toast.LENGTH_LONG).show();}
 		
 		
@@ -58,6 +63,10 @@ public class PaseoPreview extends Activity  {
     	Criteria crit = new Criteria();
     	crit.setAccuracy(Criteria.ACCURACY_FINE);
     	locManager.getLastKnownLocation(locManager.getBestProvider(crit, true));
+    	
+    	//Vibraciones
+    	
+    	v.vibrate(300);
     	
     	//Wifi
     	//setup wifi

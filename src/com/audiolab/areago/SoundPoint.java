@@ -38,7 +38,7 @@ public class SoundPoint extends Location {
 	
 	private boolean salido = false;
 	private boolean completado = false;
-	
+	public boolean autofade = false;
 	//private SoundPoint instance;
 	
 
@@ -56,6 +56,10 @@ public class SoundPoint extends Location {
 
 	public void setRadius(float radius) {
 		this.radius = radius;
+	}
+	
+	public void setAutofade(boolean af) {
+		this.autofade = af;
 	}
 	
 	public void setType(int type) {
@@ -104,16 +108,18 @@ public class SoundPoint extends Location {
 				case STATUS_STOPPED :
 					switch (this.type){
 						case TYPE_PLAY_ONCE:
-							if (!this.played) this.mediaPlay();
+							if (!this.played) this.mediaPlay(l);
 							break;
 						case TYPE_PLAY_LOOP:
-							this.mediaPlay();
+							this.mediaPlay(l);
 							break;
 						// EL RESTO DE TYPE NO AFECTA ??
 					}
 					break;
 				case STATUS_PLAYING :
 					// Seguimos reproduciendo
+					// TODO: cambia el volumen si es necesario..
+						if(this.autofade) this.changeVolume(l);
 					break;
 				case STATUS_PAUSED :
 					// Volvemos a ejecutar el audio.
@@ -164,7 +170,20 @@ public class SoundPoint extends Location {
 		status=STATUS_PLAYING;
 	}
 	
-	private void mediaPlay(){
+	private void changeVolume(Location l) {
+		// escala de log10 de 1-10 -> volumen = 1-log([1-10])
+		// PRE: distancia <= radio
+		// volume = 1 -log(distancia*10/radio)
+		// Problem: distancia*10/radio != 0 porque es un error en logaritmo!!
+		   	
+		double d = this.distanceTo(l)*10.0/this.radius;
+		if (d==0.0) d=1;
+		float v = (float) (1.0 - Math.log(d));
+		this.mp.setVolume(v,v);
+		
+	}
+	
+	private void mediaPlay(Location l){
 		this.mp = new MediaPlayer();
 		Log.d("AREAGO","Playing: "+this.folder + "/" + this.soundFile);
 		
@@ -183,7 +202,16 @@ public class SoundPoint extends Location {
 			e.printStackTrace();
 		}		
 		
-		this.mp.setVolume(1.0f, 1.0f);
+	    // Gestión de volumen!
+
+	    // autoFADE disabled
+	    if (!this.autofade) {
+	    	this.mp.setVolume(1.0f, 1.0f);
+	    } else {	
+		// autoFADE
+	    	this.changeVolume(l);
+	    }	
+	    	
 		this.mp.start();
 		
 		this.status=STATUS_PLAYING;

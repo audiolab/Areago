@@ -223,15 +223,11 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 	}
 
 	private void get_PaseosDescargados() {
-		// TODO Auto-generated method stub
 
-        
 		fold = new File(PATH_PASEOS);
         if (!fold.isDirectory()) fold.mkdir(); // La primera vez que se entra no hay directorio creado
         File[] fpaseos = fold.listFiles();
-        
-        
-        
+                
         if (fpaseos.length == 0) Toast.makeText(this,"No hay paseos en memoria",Toast.LENGTH_LONG).show();
         
         for (int i = 0; i<fpaseos.length; i++) {

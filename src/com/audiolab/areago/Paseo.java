@@ -2,9 +2,6 @@ package com.audiolab.areago;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -12,6 +9,7 @@ import org.json.JSONObject;
 
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.Vibrator;
 import android.util.Log;
 
 public class Paseo {
@@ -28,6 +26,7 @@ public class Paseo {
 	boolean downlad=false; // necesita ser descargado?
 	String JsonPoints; // Listado de puntos del mapa en Json Array
 	ArrayList<SoundPoint> puntos = new ArrayList<SoundPoint>();
+	Vibrator vibrator;
 	
 	// Creadoras
 	public Paseo(int id) {
@@ -41,6 +40,10 @@ public class Paseo {
 	
 	public void setDescription(String d) {
 		this.descripcion = d;
+	}
+	
+	public void setVibrator(Vibrator v) {
+		this.vibrator = v;
 	}
 	
 	// Consultoras
@@ -90,6 +93,7 @@ public class Paseo {
 				p.setSoundFile(jObject.getString("file"));
 				p.setId(jObject.getInt("id"));
 				p.setType(jObject.getInt("type")); // TODO: Leerlo del JSON
+				p.setAutofade(jObject.getBoolean("autofade"));
 				p.setFolder("/mnt/sdcard/Areago/"+this.getId());
 				this.puntos.add(p);
 			} 
