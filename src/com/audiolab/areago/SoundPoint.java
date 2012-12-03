@@ -175,10 +175,12 @@ public class SoundPoint extends Location {
 		// PRE: distancia <= radio
 		// volume = 1 -log(distancia*10/radio)
 		// Problem: distancia*10/radio != 0 porque es un error en logaritmo!!
-		   	
-		double d = this.distanceTo(l)*10.0/this.radius;
-		if (d==0.0) d=1;
-		float v = (float) (1.0 - Math.log(d));
+		// El resultado queda demasiado duro.. hay que buscar una curba más suave   	
+		/*double d = this.distanceTo(l)*10.0/this.radius;
+		if (d==0.0) d=1.0;
+		float v = (float) (1.0 - Math.log(d));*/
+		// Lo dejo en lineal
+		float v = (float) this.distanceTo(l)/this.radius;
 		this.mp.setVolume(v,v);
 		
 	}

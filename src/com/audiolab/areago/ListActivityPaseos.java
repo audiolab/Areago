@@ -204,9 +204,9 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 				JSONObject jObject = jArray.getJSONObject(i);
 
 				Paseo walk = new Paseo(jObject.getInt("id"));
-				walk.setTitle(jObject.getString("name"));
-				walk.setDescription(jObject.getString("description"));
-				//walk.hash = jObject.getInt("hash");
+				walk.setTitle(jObject.getString("nombre"));
+				walk.setDescription(jObject.getString("resumen"));
+				walk.hash = jObject.getString("hash");
 
 			if (!walk.exist(walks)) {
 				walk.downlad=false; // no esta descargado
@@ -234,7 +234,8 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
         	Writer writer = new StringWriter();
         	if ( fpaseos[i].isDirectory() ) {
         	try {
-        		File jsondata = new File(fpaseos[i]+"/data.json");
+//        		File jsondata = new File(fpaseos[i]+"/data.json");
+        		File jsondata = new File(fpaseos[i]+"/info.json");
         		char[] buffer = new char[1024];
         		Reader reader = new BufferedReader(new FileReader(jsondata));
         		int n;
@@ -257,9 +258,11 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 				
 				Paseo walk = new Paseo(jObject.getInt("id"));
 				walk.setTitle(jObject.getString("name"));
-				walk.setDescription(jObject.getString("description"));
-				walk.hash = jObject.getInt("hash");
-				walk.JsonPoints = jObject.getString("puntos");
+				// La descripción es muy larga.. trabajos con excerpt
+				//walk.setDescription(jObject.getString("description"));
+				walk.setDescription(jObject.getString("excerpt"));
+				walk.hash = jObject.getString("hash");
+				walk.JsonPoints = jObject.getString("points");
 				//walks.add(walk);
 				//walks.add(jObject.getInt("id"),walk);
 				walk.downlad=true; // El paseo ya está descargado
@@ -328,7 +331,7 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 	
 	// Gestion del progress bar
 	private void startDownload() {
-        String url = "http://www.interferencies.net/"+vClicked.getId()+".zip";
+        String url = "http://www.xavierbalderas.com/areago/areago/descarga/"+vClicked.getId();
         new DownloadFileAsync().execute(url);
     }
     @Override
@@ -377,15 +380,20 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 				ZipInputStream zin = new ZipInputStream(input);
 				ZipEntry ze = null;
 				
+				//Creamos el directorio con el ID donde se decargar el archivo
+				String path_walk = PATH_PASEOS + "/"+vClicked.getId();
+				fold = new File(path_walk);
+			    if (!fold.isDirectory()) fold.mkdir();
+				
 				while ((ze = zin.getNextEntry()) != null) {
 					 Log.v("Decompress", "Unzipping " + ze.getName());
 					 long lenghtOfFile = ze.getSize();
 					 if (ze.isDirectory()) {
 						 // TODO: Que tengo que hacer? crear el directorio?
-						 fold = new File(or.getAbsolutePath() + "/areago/"+ze.getName());
+						 fold = new File(path_walk + "/"+ze.getName());
 					     if (!fold.isDirectory()) fold.mkdir();
 					 } else {
-						 OutputStream output = new FileOutputStream(PATH_PASEOS+"/"+ze.getName());
+						 OutputStream output = new FileOutputStream(path_walk+"/"+ze.getName());
 						 byte data[] = new byte[1024];
 						 long total = 0;
 						 while ((count = zin.read(data)) != -1 ) {

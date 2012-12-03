@@ -21,7 +21,7 @@ public class Paseo {
 	int num_grabaciones;
 	int tamano;
 	SoundPoint pref = new SoundPoint("paseo_reference"); // Punto de referencia de inicio / lat-lon
-	int hash = -1;
+	String hash = "";
 	boolean update=false; // ya está descargado pero necesita ser actualizado porque el hash es diferente
 	boolean downlad=false; // necesita ser descargado?
 	String JsonPoints; // Listado de puntos del mapa en Json Array
@@ -94,6 +94,7 @@ public class Paseo {
 				p.setId(jObject.getInt("id"));
 				p.setType(jObject.getInt("type")); // TODO: Leerlo del JSON
 				p.setAutofade(jObject.getBoolean("autofade"));
+				// TODO: Hacer una variable global en sharedPreferences para guarda el lugar de descarga..
 				p.setFolder("/mnt/sdcard/Areago/"+this.getId());
 				this.puntos.add(p);
 			} 
@@ -101,7 +102,7 @@ public class Paseo {
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			//e.printStackTrace();
-			Log.d("AREAGO","Error al cargar los puntos del paseo: "+this.getTitle());
+			Log.d("AREAGO","Error al cargar los puntos del paseo: "+this.getTitle()+" @ "+str);
 		}
 	}
 	
