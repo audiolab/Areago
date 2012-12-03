@@ -205,7 +205,6 @@ public class SoundPoint extends Location {
 		}		
 		
 	    // Gestión de volumen!
-
 	    // autoFADE disabled
 	    if (!this.autofade) {
 	    	this.mp.setVolume(1.0f, 1.0f);

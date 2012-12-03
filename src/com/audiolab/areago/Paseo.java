@@ -75,7 +75,49 @@ public class Paseo {
 	}
 	
 	public void create_points(String str) {
+		// Crear los puntos a partir del Objeto Points del GeoJSON
+		//
+		
+		JSONObject points;
+		try {
+			
+			points = new JSONObject(str);
+			//String type = points.getString("type"); no lo uso
+			JSONArray features = points.getJSONArray("features"); // aquí van los puntos
+
+		
+			for (int i = 0; i<features.length();i++) {
+				// Cargamos cada uno de los obj con los puntos
+				JSONObject jO = features.getJSONObject(i);
+				JSONObject properties = jO.getJSONObject("properties");
+				JSONObject geometry = jO.getJSONObject("geometry");
+				JSONObject geo_prop = geometry.getJSONObject("properties");
+				JSONArray geo_coord = geometry.getJSONArray("coordinates");
+
+				//Paseo walk = new Paseo(jObject.getInt("id"),jObject.getString("name"),jObject.getString("description"));
+				// Me esto inventado el provider...
+				SoundPoint p = new SoundPoint(LocationManager.GPS_PROVIDER);
+				p.setLatitude(geo_coord.getDouble(1)); // TODO: No estoy seguro si el primer valor es LAT o LON...
+				p.setLongitude(geo_coord.getDouble(0));
+				p.setRadius((float) geometry.getDouble("radius"));
+				p.setSoundFile(properties.getString("file"));
+				p.setType(1); // TODO: De momento no definido en el JSON, por defecto 1 - PLAY_LOOP
+				p.setAutofade(true); // por defecto le dejo activado el autofade.. 
+				// TODO: Hacer una variable global en sharedPreferences para guarda el lugar de descarga..
+				p.setFolder("/mnt/sdcard/Areago/"+this.getId()); // En JSON no nos define el ID del paseo? si
+				this.puntos.add(p);
+			} 
+		
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			//e.printStackTrace();
+			Log.d("AREAGO","Error al cargar los puntos del paseo: "+this.getTitle()+" @ "+str);
+		}
+	}
+	
+	public void create_points_OLD(String str) {
 		// Crea los puntos en el ArrayList a partir de un JArray
+		//
 		JSONArray jArray;
 		try {
 			jArray = new JSONArray(str);
@@ -92,7 +134,7 @@ public class Paseo {
 				p.setRadius((float) jObject.getDouble("radio"));
 				p.setSoundFile(jObject.getString("file"));
 				p.setId(jObject.getInt("id"));
-				p.setType(jObject.getInt("type")); // TODO: Leerlo del JSON
+				p.setType(jObject.getInt("type"));
 				p.setAutofade(jObject.getBoolean("autofade"));
 				// TODO: Hacer una variable global en sharedPreferences para guarda el lugar de descarga..
 				p.setFolder("/mnt/sdcard/Areago/"+this.getId());
