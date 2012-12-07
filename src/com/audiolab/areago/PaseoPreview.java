@@ -1,15 +1,21 @@
 package com.audiolab.areago;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
+
 import android.app.Activity;
 import android.app.KeyguardManager;
 import android.app.KeyguardManager.KeyguardLock;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.IntentFilter;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.wifi.WifiConfiguration;
+import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Vibrator;
@@ -23,11 +29,23 @@ public class PaseoPreview extends Activity  {
 	LocationListener locationListener;
 	Paseo walk;
 	double[] nl = new double[2];
-	BroadcastReceiver receiver = null;
-	WifiManager wifi;
+
 	TextView status;
-	WifiConfiguration wifiConf;
 	Vibrator v;
+	
+	//para el wifi
+	BroadcastReceiver receiver = null;
+	WifiConfiguration wifiConf;
+	WifiManager wifi;
+	
+	//timers
+	private Timer timer;
+	private TimerTask updateTask = new TimerTask() {
+	    @Override
+	    public void run() {
+	      wifi.startScan();
+	    }
+	  };
 	
 	
 	public void onCreate(Bundle savedInstanceState) {
@@ -43,8 +61,8 @@ public class PaseoPreview extends Activity  {
         v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 		
 		String JSONPoints = getIntent().getStringExtra("json");
-		String lat = getIntent().getStringExtra("lat");
-		String lon = getIntent().getStringExtra("lon");
+//		String lat = getIntent().getStringExtra("lat");
+//		String lon = getIntent().getStringExtra("lon");
 		
 		// Definimos paseo
 		walk = new Paseo(getIntent().getIntExtra("id", 0));
@@ -68,40 +86,36 @@ public class PaseoPreview extends Activity  {
     	
     	v.vibrate(300);
     	
-    	//Wifi
-    	//setup wifi
-//    	wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-//    	
-//    	
-//    	//wifi info
-//    	WifiInfo info = wifi.getConnectionInfo();
-//		((TextView)findViewById(R.id.wifi)).setText("WiFi Status: " + info.toString());
-//		//wifi_connections
-//		
-//		
-//		// Register Broadcast Receiver
-//		if (receiver == null) receiver = new WiFiScanReceiver(this);
-//		registerReceiver(receiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
-//		
-//		wifi.startScan();
+    	//configure wifi
+		wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+		WifiInfo info = wifi.getConnectionInfo();
+		Log.d("AREAGO","Wifi Status: "+info.toString());
+        if (receiver == null) receiver = new WiFiScanReceiver(this);
+        //List<WifiConfiguration> configs = wifi.getConfiguredNetworks();
+		
+        if (receiver == null) receiver = new WiFiScanReceiver(this);
+		registerReceiver(receiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+		
+		//configuramos el timer
+		timer = new Timer();
+		timer.schedule(updateTask, 0, 3000);
 	}
     	
 	public void onResume() {
 
 		super.onResume();
 		locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
-		//wifi.updateNetwork(wifi);
 	}
 
 	public void onPause() {
 		super.onPause();
-		locManager.removeUpdates(locationListener);
+		//locManager.removeUpdates(locationListener); // Lo mantengo abierto cuando se apaga la pantalla
 	}
 	
 	public void onStop() {
 		super.onStop();
 		this.walk.stop();
-		//unregisterReceiver(receiver);
+		unregisterReceiver(receiver);
 	}
 	
 	// INFO: Gestión del GPS

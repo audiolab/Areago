@@ -3,12 +3,14 @@ package com.audiolab.areago;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.wifi.ScanResult;
 import android.os.Vibrator;
 import android.util.Log;
 
@@ -101,7 +103,8 @@ public class Paseo {
 				p.setLongitude(geo_coord.getDouble(0));
 				p.setRadius((float) geometry.getDouble("radius"));
 				p.setSoundFile(properties.getString("file"));
-				p.setType(1); // TODO: De momento no definido en el JSON, por defecto 1 - PLAY_LOOP
+				p.setType(properties.getInt("type")); // Dentro de properties
+				p.setEssid(properties.getString("essid")); // TODO: Será obligatorio tener ESSID?? aunque sea ""
 				p.setAutofade(true); // por defecto le dejo activado el autofade.. 
 				// TODO: Hacer una variable global en sharedPreferences para guarda el lugar de descarga..
 				p.setFolder("/mnt/sdcard/Areago/"+this.getId()); // En JSON no nos define el ID del paseo? si
@@ -161,6 +164,13 @@ public class Paseo {
 			p = p + " | "+this.puntos.get(i).getFolder()+"/"+this.puntos.get(i).getSoundFile();
 		}
 		return p;
+	}
+	
+	public void check_collisions(ScanResult wifi) {
+		for (int i=0; i<this.puntos.size(); i++) {
+			this.puntos.get(i).checkColision(wifi);
+			Log.d("AREAGO","ID: "+this.puntos.get(i).getId()+"tipo:"+this.puntos.get(i).getType());
+		}
 	}
 	
 	//public boolean exist(ArrayList<Paseo> walks) {
