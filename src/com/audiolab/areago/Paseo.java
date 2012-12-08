@@ -17,19 +17,19 @@ import android.util.Log;
 
 public class Paseo {
 	
-	int id ;
-	String titulo;
-	String idioma;
-	String descripcion;
-	int num_grabaciones;
-	int tamano;
-	SoundPoint pref = new SoundPoint("paseo_reference"); // Punto de referencia de inicio / lat-lon
-	String hash = "";
-	boolean update=false; // ya está descargado pero necesita ser actualizado porque el hash es diferente
-	boolean downlad=false; // necesita ser descargado?
-	String JsonPoints; // Listado de puntos del mapa en Json Array
-	ArrayList<SoundPoint> puntos = new ArrayList<SoundPoint>();
-	Vibrator vibrator;
+	private int id ;
+	private String titulo;
+	private String idioma;
+	private String descripcion;
+	private int grabaciones;
+	private int tamano;
+	private SoundPoint pref = new SoundPoint("paseo_reference"); // Punto de referencia de inicio / lat-lon
+	private String hash = "";
+	private boolean update=false; // ya está descargado pero necesita ser actualizado porque el hash es diferente
+	private boolean downlad=false; // necesita ser descargado?
+	private String JsonPoints; // Listado de puntos del mapa en Json Array
+	private ArrayList<SoundPoint> puntos = new ArrayList<SoundPoint>();
+	private Vibrator vibrator;
 	
 	// Creadoras
 	public Paseo(int id) {
@@ -49,6 +49,38 @@ public class Paseo {
 		this.vibrator = v;
 	}
 	
+	public void setIdioma(String lan) {
+		this.idioma=lan;
+	}
+	
+	public void setGrabaciones(int grabaciones) {
+		this.grabaciones = grabaciones;
+	}
+	
+	public void setHash(String hash) {
+		this.hash = hash;
+	}
+	
+	public void setUpdated() {
+		this.update=true;
+	}
+	
+	public void setOutdated() {
+		this.update=false;
+	}
+	
+	public void setDownloaded() {
+		this.downlad=true;
+	}
+	
+	public void setNotDownloaded() {
+		this.downlad=false;
+	}
+	
+	public void setPoints(String points) {
+		this.JsonPoints = points;
+	}
+	
 	// Consultoras
 	public String getTitle() {
 		return this.titulo; 
@@ -56,6 +88,14 @@ public class Paseo {
 	
 	public int getId() {
 		return this.id;
+	}
+	
+	public String getHash() {
+		return this.hash;
+	}
+	
+	public String getPoints() {
+		return this.JsonPoints;
 	}
 	
 	public String getDescription() {
@@ -177,14 +217,16 @@ public class Paseo {
 	//public boolean exist(ArrayList<Paseo> walks) {
 	public boolean exist(HashMap<Integer,Paseo> walks) {
 		if (walks.get(this.id) != null) { // ya está mapeado un paseo con ese ID
-			//Paseo p = (Paseo) walks.get(this.id);
-				/*if (this.hash != -1) { // si tiene hash... 
-					if (p.hash != this.hash) { // se debe actualizar
-						p.update = false; // marcamos como no actualizado
-						walks.put(this.id, p); // actualizamos el paseo en el hash
+			Paseo p = (Paseo) walks.get(this.id);
+			if (this.getHash() != "") { // si tiene hash...
+					Log.d("AREAGO","Check HASH 0: "+this.getHash()+" Cheack HASH 1: "+p.getHash());
+					if (!p.getHash().equals(this.getHash())) { // se debe actualizar
+						Log.d("AREAGO","Son diferentes, hay que actualizar!!");
+						p.setOutdated(); // marcamos como no actualizado
+						walks.put(this.getId(), p); // actualizamos el paseo en el hash
 					}
 					
-				}*/
+				}
 			return true;
 		} else { return false; }
 	}

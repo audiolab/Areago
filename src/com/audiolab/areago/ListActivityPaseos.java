@@ -80,11 +80,11 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 		
 		/// Miramos la disponibilidad de paseos en la máquina
 		/// Añadimos a Walks los paseos descargados
-		get_PaseosDescargados();
+		getPaseos();
 		
 		/// Cargamos paseos online (hemos cargado el archivo en el activity anterior)
 		String str = getIntent().getStringExtra("json");
-		get_PaseosOnline(str);
+		getPaseos(str);
 		
 		// Creamos la lista de paseos recorriendo walks
 		
@@ -236,7 +236,8 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 		
 	}
 
-	private void get_PaseosOnline(String str) {
+	// getPaseos de un JSONArray , en este caso, del servidor..
+	private void getPaseos(String str) {
 
 		JSONArray jArray;
 		try {
@@ -249,11 +250,14 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 				Paseo walk = new Paseo(jObject.getInt("id"));
 				walk.setTitle(jObject.getString("nombre"));
 				walk.setDescription(jObject.getString("resumen"));
-				walk.hash = jObject.getString("hash");
+				walk.setHash(jObject.getString("hash"));
+				walk.setGrabaciones(jObject.getInt("grabaciones"));
+				walk.setIdioma(jObject.getString("idioma"));
+				//referencia
 
 			if (!walk.exist(walks)) {
-				walk.downlad=false; // no esta descargado
-				walk.update=true; // actualizado por defecto
+				walk.setNotDownloaded(); // no esta descargado
+				walk.setUpdated(); // actualizado por defecto
 				walks.put(jObject.getInt("id"),walk);
 			}
 		} 
@@ -265,7 +269,7 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 		
 	}
 
-	private void get_PaseosDescargados() {
+	private void getPaseos() {
 
 		fold = new File(PATH_PASEOS);
         if (!fold.isDirectory()) fold.mkdir(); // La primera vez que se entra no hay directorio creado
@@ -304,15 +308,15 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 				// La descripción es muy larga.. trabajos con excerpt
 				//walk.setDescription(jObject.getString("description"));
 				walk.setDescription(jObject.getString("excerpt"));
-				walk.hash = jObject.getString("hash");
-				walk.JsonPoints = jObject.getString("points");
+				walk.setHash(jObject.getString("hash"));
+				walk.setPoints(jObject.getString("points"));
 				//walks.add(walk);
 				//walks.add(jObject.getInt("id"),walk);
-				walk.downlad=true; // El paseo ya está descargado
-				walk.update=true; // Esta actualizado por defecto
+				walk.setDownloaded();// El paseo ya está descargado
+				walk.setUpdated();//Esta actualizado por defecto
 				walks.put(jObject.getInt("id"),walk);
 				
-				Log.d("AREAGO","Cargando el paseo: "+walk.titulo+" - ID:"+walk.id);
+				Log.d("AREAGO","Cargando el paseo: "+walk.getTitle()+" - ID:"+walk.getId());
 				
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
@@ -341,6 +345,8 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 			start_walk();
 		} else if (p.isDownload() && !p.isUpdate()) {
 			//TODO: Actualizar los ficheros
+			deleteWalk();
+			startDownload();
 		} else if (!p.isDownload()) {
 			Log.d("AREAGO","Descargamos el zip "+fold.getAbsolutePath());
 			// descargamos zip del paseo con el directorio oportuno
@@ -352,13 +358,13 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 		
 		Intent i = new Intent("com.audiolab.areago.PaseoPreview");
 		Paseo p = (Paseo) walks.get(vClicked.getId());
-		i.putExtra("json", p.JsonPoints);
+		i.putExtra("json", p.getPoints());
 		i.putExtra("lat", "333");
 		i.putExtra("lon", "222"); 
-		i.putExtra("descripcion", p.descripcion);
-		i.putExtra("titulo", p.titulo);
-		i.putExtra("id", p.id);
-		Log.d("AREAGO","Arrancamos el paseo: "+p.id+p.JsonPoints);
+		i.putExtra("descripcion", p.getDescription());
+		i.putExtra("titulo", p.getTitle());
+		i.putExtra("id", p.getId());
+		Log.d("AREAGO","Arrancamos el paseo: "+p.getId()+p.getPoints());
 
 		startActivity(i);
 	}
@@ -370,6 +376,20 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 	        return true;
 	    }
 	    return false;
+	}
+	
+	// Borrar el paseo de Areago
+	private void deleteWalk() {
+		Log.d("AREAGO","Borramos el paseo"+vClicked.getId());
+		String path_walk = PATH_PASEOS + "/"+vClicked.getId();
+		File fold = new File(path_walk);
+		if (fold.isDirectory()){
+			String[] children = fold.list();
+			for (int i = 0; i < children.length; i++) {
+	            new File(fold, children[i]).delete();
+	        }
+		}
+		fold.delete();
 	}
 	
 	// Gestion del progress bar
