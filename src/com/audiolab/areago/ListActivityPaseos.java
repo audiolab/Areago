@@ -169,7 +169,7 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 				tv = new TextView(this);
 				tv.setBackgroundResource(R.color.white);
 				tv.setTextColor(Color.BLACK);
-				tv.setText(p.getDescription());
+				tv.setText(p.getExcerpt());
 				tv.setLayoutParams(params);
 				layout.addView(tv);
 				
@@ -307,7 +307,8 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 				walk.setTitle(jObject.getString("name"));
 				// La descripción es muy larga.. trabajos con excerpt
 				//walk.setDescription(jObject.getString("description"));
-				walk.setDescription(jObject.getString("excerpt"));
+				walk.setDescription(jObject.getString("description"));
+				walk.setExcerpt(jObject.getString("excerpt"));
 				walk.setHash(jObject.getString("hash"));
 				walk.setPoints(jObject.getString("points"));
 				//walks.add(walk);
@@ -362,6 +363,7 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 		i.putExtra("lat", "333");
 		i.putExtra("lon", "222"); 
 		i.putExtra("descripcion", p.getDescription());
+		i.putExtra("excerpt", p.getExcerpt());
 		i.putExtra("titulo", p.getTitle());
 		i.putExtra("id", p.getId());
 		Log.d("AREAGO","Arrancamos el paseo: "+p.getId()+p.getPoints());

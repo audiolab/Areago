@@ -21,6 +21,7 @@ public class Paseo {
 	private String titulo;
 	private String idioma;
 	private String descripcion;
+	private String excerpt;
 	private int grabaciones;
 	private int tamano;
 	private SoundPoint pref = new SoundPoint("paseo_reference"); // Punto de referencia de inicio / lat-lon
@@ -43,6 +44,10 @@ public class Paseo {
 	
 	public void setDescription(String d) {
 		this.descripcion = d;
+	}
+	
+	public void setExcerpt(String e) {
+		this.excerpt = e;
 	}
 	
 	public void setVibrator(Vibrator v) {
@@ -102,6 +107,10 @@ public class Paseo {
 		return this.descripcion;
 	}
 	
+	public String getExcerpt() {
+		return this.excerpt;
+	}
+	
 	public boolean isUpdate() { //esta actualizado? false no está actualizado 
 		return this.update;
 	}
@@ -127,7 +136,7 @@ public class Paseo {
 			points = new JSONObject(str);
 			//String type = points.getString("type"); no lo uso
 			JSONArray features = points.getJSONArray("features"); // aquí van los puntos
-
+			
 		
 			for (int i = 0; i<features.length();i++) {
 				// Cargamos cada uno de los obj con los puntos
@@ -214,14 +223,11 @@ public class Paseo {
 		}
 	}
 	
-	//public boolean exist(ArrayList<Paseo> walks) {
 	public boolean exist(HashMap<Integer,Paseo> walks) {
 		if (walks.get(this.id) != null) { // ya está mapeado un paseo con ese ID
 			Paseo p = (Paseo) walks.get(this.id);
 			if (this.getHash() != "") { // si tiene hash...
-					Log.d("AREAGO","Check HASH 0: "+this.getHash()+" Cheack HASH 1: "+p.getHash());
 					if (!p.getHash().equals(this.getHash())) { // se debe actualizar
-						Log.d("AREAGO","Son diferentes, hay que actualizar!!");
 						p.setOutdated(); // marcamos como no actualizado
 						walks.put(this.getId(), p); // actualizamos el paseo en el hash
 					}

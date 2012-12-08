@@ -3,7 +3,6 @@ package com.audiolab.areago;
 import java.util.Timer;
 import java.util.TimerTask;
 
-
 import android.app.Activity;
 import android.app.KeyguardManager;
 import android.app.KeyguardManager.KeyguardLock;
@@ -22,6 +21,7 @@ import android.os.Vibrator;
 import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
+import android.webkit.WebView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -74,12 +74,17 @@ public class PaseoPreview extends Activity  {
 		walk = new Paseo(getIntent().getIntExtra("id", 0));
 		walk.setTitle(getIntent().getStringExtra("titulo"));
 		walk.setDescription(getIntent().getStringExtra("descripcion"));
+		walk.setExcerpt(getIntent().getStringExtra("excerpt"));
 		walk.setVibrator(v);
 		if (JSONPoints.length()>0) { walk.create_points(JSONPoints); } else {Toast.makeText(this,"Este paseo no tiene puntos",Toast.LENGTH_LONG).show();}
 		
 		
-		((TextView)findViewById(R.id.titulo)).setText(getIntent().getStringExtra("titulo"));
-		((TextView)findViewById(R.id.descripcion)).setText(getIntent().getStringExtra("descripcion"));
+//		((TextView)findViewById(R.id.titulo)).setText(getIntent().getStringExtra("titulo"));
+//		((TextView)findViewById(R.id.descripcion)).setText(getIntent().getStringExtra("descripcion"));
+		String html = "<h1>"+walk.getTitle()+"</h1>"+
+				"<p style='font-style:italic;text-align:justify;padding-left:30px;'>"+walk.getExcerpt()+"</p>"+
+				"<div content='description' style='text-align:justify;'>"+walk.getDescription()+"</div>";
+		((WebView)findViewById(R.id.webview)).loadData(html, "text/html", "ISO-8859-1");
 		
     	locManager = (LocationManager) getSystemService(LOCATION_SERVICE);
     	locationListener = new PaseoLocationListener();
@@ -131,7 +136,6 @@ public class PaseoPreview extends Activity  {
     	public void onLocationChanged(Location location) {
     		// TODO Auto-generated method stub
     		if (location != null) {
-    			//Toast.makeText(getBaseContext(),"Location changed",Toast.LENGTH_LONG).show();
     			((TextView)findViewById(R.id.gps)).setText("Posición: "+location.getLatitude()+"/"+location.getLongitude()+"/"+location.getAccuracy());
     			SoundPoint nl = new SoundPoint(location);
     			Log.d("AREAGO","Location changed");
@@ -139,8 +143,7 @@ public class PaseoPreview extends Activity  {
     			// Miramos si el punto actual está dentro del radio de acción de algun punto del paseo.
     			// Si nos hemos movido
     			walk.check_collisions(nl);
-    			//String info = walk.check_collisions(nl);
-    			//((TextView)findViewById(R.id.log_view)).setText(info);
+
     			}
     		}
 

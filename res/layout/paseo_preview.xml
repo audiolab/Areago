@@ -5,7 +5,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical"
+    android:background="#ffffff" >
 
     <ScrollView
         android:id="@+id/scrollView1"
@@ -15,68 +16,51 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical" >
+            android:orientation="vertical"
+            android:background="#ffffff" >
+
+                <ImageView
+        android:id="@+id/imageView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/areago_48dp" />
+            
+             <WebView android:id="@+id/webview"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"/>
         
 
-    <TextView
-        android:id="@+id/lbltitulo"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="Nombre:" />
+<!--     <TextView -->
+<!--         android:id="@+id/lbltitulo" -->
+<!--         android:layout_width="fill_parent" -->
+<!--         android:layout_height="wrap_content" -->
+<!--         android:text="Nombre:" /> -->
 
-    <TextView
-        android:id="@+id/titulo"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="" />
+<!--     <TextView -->
+<!--         android:id="@+id/titulo" -->
+<!--         android:layout_width="fill_parent" -->
+<!--         android:layout_height="wrap_content" -->
+<!--         android:text="" /> -->
 
-    <TextView
-        android:id="@+id/lbldescripcion"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="Descripcion:" />
+<!--     <TextView -->
+<!--         android:id="@+id/lbldescripcion" -->
+<!--         android:layout_width="fill_parent" -->
+<!--         android:layout_height="wrap_content" -->
+<!--         android:text="Descripcion:" /> -->
 
-    <TextView
-        android:id="@+id/descripcion"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="" />
+<!--     <TextView -->
+<!--         android:id="@+id/descripcion" -->
+<!--         android:layout_width="fill_parent" -->
+<!--         android:layout_height="wrap_content" -->
+<!--         android:text="" /> -->
 
+	<!--  Para DEBUG el uso del GPS -->
     <TextView
         android:id="@+id/gps"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="" />
-    
-    <TextView
-        android:id="@+id/wifi"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="" />
-    
-    <TextView
-        android:id="@+id/wifi_con"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="" />
-    
-    <TextView
-        android:id="@+id/idioma"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="" />
-    
-    <TextView
-        android:id="@+id/log_view"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="" />
-    
-    <ImageView
-        android:id="@+id/imageView1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/brujula" />
+
 
     </LinearLayout>
     </ScrollView>

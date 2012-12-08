@@ -27,22 +27,22 @@ public final class R {
         public static final int ic_launcher=0x7f020004;
     }
     public static final class id {
-        public static final int descripcion=0x7f0a0006;
+        public static final int descripcion=0x7f0a000a;
         public static final int exit=0x7f0a000f;
-        public static final int gps=0x7f0a0007;
-        public static final int horizontalScrollView1=0x7f0a000c;
-        public static final int idioma=0x7f0a000a;
+        public static final int gps=0x7f0a0004;
+        public static final int horizontalScrollView1=0x7f0a0005;
+        public static final int idioma=0x7f0a000d;
         public static final int imageView1=0x7f0a0000;
         public static final int info_main=0x7f0a0001;
-        public static final int layout_general=0x7f0a000d;
-        public static final int lbldescripcion=0x7f0a0005;
-        public static final int lbltitulo=0x7f0a0003;
-        public static final int log_view=0x7f0a000b;
+        public static final int layout_general=0x7f0a0006;
+        public static final int lbldescripcion=0x7f0a0009;
+        public static final int lbltitulo=0x7f0a0007;
         public static final int preferences=0x7f0a000e;
         public static final int scrollView1=0x7f0a0002;
-        public static final int titulo=0x7f0a0004;
-        public static final int wifi=0x7f0a0008;
-        public static final int wifi_con=0x7f0a0009;
+        public static final int titulo=0x7f0a0008;
+        public static final int webview=0x7f0a0003;
+        public static final int wifi=0x7f0a000b;
+        public static final int wifi_con=0x7f0a000c;
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;
