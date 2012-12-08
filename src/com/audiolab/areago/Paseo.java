@@ -111,6 +111,10 @@ public class Paseo {
 		return this.excerpt;
 	}
 	
+	public String getIdioma() {
+		return this.idioma;
+	}
+	
 	public boolean isUpdate() { //esta actualizado? false no está actualizado 
 		return this.update;
 	}

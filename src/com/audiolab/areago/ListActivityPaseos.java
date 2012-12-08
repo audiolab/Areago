@@ -95,10 +95,8 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 			Set set = walks.entrySet();
 			Iterator iter = set.iterator();
 			
-			//for (int i = 0; i<walks.size();i++) {
 			while (iter.hasNext()) {
 				
-				//Paseo p = (Paseo) iter.next();
 				Map.Entry me = (Map.Entry)iter.next();
 				Paseo p = (Paseo) me.getValue();
 				
@@ -108,7 +106,6 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 				LinearLayout layout = new LinearLayout(this);
 				layout.setOrientation(LinearLayout.VERTICAL);
 				layout.setBackgroundResource(R.color.white);
-				//layout.setId(p.getId());
 				
 				ImageView img = new ImageView(this);
 				img.setLayoutParams(params);
@@ -117,54 +114,17 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 				img.setClickable(true);
 				img.setOnClickListener(this);
 				img.setId(p.getId());
-				//img.setId(i);
 
 
 				TextView tv;
-				
-				//Titulo
-//				TextView tv = new TextView(this);
-//				tv.setBackgroundResource(R.color.white);
-//				tv.setTextColor(Color.BLACK);
-//				tv.setTypeface(null,Typeface.BOLD);
-//				tv.setText("Nombre:");
-//				tv.setLayoutParams(params);
-//				layout.addView(tv);
 				
 				tv = new TextView(this);
 				tv.setBackgroundResource(R.color.white);
 				tv.setTextColor(Color.BLACK);
 				tv.setTypeface(null,Typeface.BOLD);
-				tv.setText(String.valueOf(p.getId()) + " - "+p.getTitle());
+				tv.setText(String.valueOf(p.getTitle()+" ["+p.getIdioma()+"]"));
 				tv.setLayoutParams(params);
 				layout.addView(tv);
-				
-				//ID
-//				tv = new TextView(this);
-//				tv.setBackgroundResource(R.color.white);
-//				tv.setTextColor(Color.BLACK);
-//				tv.setTypeface(null,Typeface.BOLD);
-//				tv.setText("ID:");
-//				tv.setLayoutParams(params);
-//				layout.addView(tv);
-//				
-//				
-//				tv = new TextView(this);
-//				tv.setBackgroundResource(R.color.white);
-//				tv.setTextColor(Color.BLACK);
-//				tv.setText(String.valueOf(p.getId()));
-//				tv.setLayoutParams(params);
-//				layout.addView(tv);
-//				tv.setTextColor(Color.BLACK);
-				
-				// Descripcion
-//				tv = new TextView(this);
-//				tv.setBackgroundResource(R.color.white);
-//				tv.setTextColor(Color.BLACK);
-//				tv.setText("Descripcion:");
-//				tv.setTypeface(null,Typeface.BOLD);
-//				tv.setLayoutParams(params);
-//				layout.addView(tv);
 				
 				tv = new TextView(this);
 				tv.setBackgroundResource(R.color.white);
@@ -173,44 +133,20 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 				tv.setLayoutParams(params);
 				layout.addView(tv);
 				
-				// Update
-//				tv = new TextView(this);
-//				tv.setBackgroundResource(R.color.white);
-//				tv.setTextColor(Color.BLACK);
-//				tv.setText("Update:");
-//				tv.setTypeface(null,Typeface.BOLD);
-//				tv.setLayoutParams(params);
-//				layout.addView(tv);
-				
-				
-				
-				
-				// Download
-//				tv = new TextView(this);
-//				tv.setBackgroundResource(R.color.white);
-//				tv.setTextColor(Color.BLACK);
-//				tv.setText("Descarga:");
-//				tv.setTypeface(null,Typeface.BOLD);
-//				tv.setLayoutParams(params);
-//				layout.addView(tv);
-				
 				tv = new TextView(this);
 				tv.setBackgroundResource(R.color.white);
-//				tv.setText("\nDESCARGADO");
+
 				
 				if (!p.isDownload()) {
 					tv.setTextColor(Color.RED);
 					tv.setText("\nNECESITA SER DESCARGADO");
-//					layout.setBackgroundColor(0xFF0000FF);
 					layout.setBackgroundResource(R.color.red);
 				} else {
 					TextView tvu = new TextView(this);
 					tvu.setBackgroundResource(R.color.white);
 					tvu.setTextColor(Color.RED);
-//					tvu.setText("\nACTUALIZADO");
 					if (!p.isUpdate()) { 
 						tvu.setText("\nNECESITA ACTUALIZACION");
-//						layout.setBackgroundColor(0x55FF0000);
 						layout.setBackgroundResource(R.color.blue);
 					}
 					tvu.setLayoutParams(params);
@@ -311,6 +247,8 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 				walk.setExcerpt(jObject.getString("excerpt"));
 				walk.setHash(jObject.getString("hash"));
 				walk.setPoints(jObject.getString("points"));
+				walk.setGrabaciones(jObject.getInt("recordings"));
+				walk.setIdioma(jObject.getString("language"));
 				//walks.add(walk);
 				//walks.add(jObject.getInt("id"),walk);
 				walk.setDownloaded();// El paseo ya está descargado
@@ -366,6 +304,7 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 		i.putExtra("excerpt", p.getExcerpt());
 		i.putExtra("titulo", p.getTitle());
 		i.putExtra("id", p.getId());
+		Bundle value = new Bundle();
 		Log.d("AREAGO","Arrancamos el paseo: "+p.getId()+p.getPoints());
 
 		startActivity(i);
