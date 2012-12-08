@@ -88,11 +88,12 @@ public class MainActivity extends Activity {
         //dialog = ProgressDialog.show(this,"Comprobando Wifi","Espera...",true);
         TextView t = (TextView)findViewById(R.id.info_main);
         t.setText("Iniciando Areago...\n");
-        t.setText(t.getText()+"Comprobando wifi\n");
+        t.setText(t.getText()+"Comprobando wifi - ");
         if (!init_wireless()) { 
 //        	((TextView)findViewById(R.id.wireless)).setText("Wireless Inactivo. No podras descargar paseos nuevos.");
         	t.setText(t.getText()+"Wifi inactivo: Actívalo para descargar paseos nuevos\n");
         	Log.d("AREAGO","Wireless Inactivo. No podras descargar paseos nuevos.");
+        	return;
         }
         else { 
 //        	((TextView)findViewById(R.id.wireless)).setText("Wireless Activado");
@@ -105,12 +106,13 @@ public class MainActivity extends Activity {
         //GPS
         //dialog = ProgressDialog.show(this,"Comprobando GPS","Espera...",true);
         //((TextView)findViewById(R.id.gps)).setText("GPS Activado");
-        t.setText(t.getText()+"Comprobando GPS\n");
+        t.setText(t.getText()+"Comprobando GPS - ");
         if (!init_gps()) {
 //        	((TextView)findViewById(R.id.gps)).setText("Está apagado el dispositivo GPS. Debe arrancarlo para inciar los paseos.");
         	t.setText(t.getText()+"GPS desactivado: Debes arrancarlo para continuar\n");
         	Log.d("AREAGO","Esta apagado del GPS");
         	findViewById(R.id.imageView1).setClickable(false);
+        	return;
         } else {
         	t.setText(t.getText()+"GPS Activado\n");
         }
@@ -118,6 +120,12 @@ public class MainActivity extends Activity {
         
         //Storage
         // TODO: Comprobar el estado de la SD
+        t.setText(t.getText()+"Comprobando tarjeta de memoria - ");
+        if ( !android.os.Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED) ) {	
+        	t.setText(t.getText()+"SDCard no es accesible, comprobar antes de continuar\n");
+        	findViewById(R.id.imageView1).setClickable(false);
+        	return;
+        }
         
         t.setText(t.getText()+"Pulsa sobre la imagen para continuar\n");
     }
