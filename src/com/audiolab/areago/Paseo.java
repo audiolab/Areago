@@ -2,6 +2,7 @@ package com.audiolab.areago;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 
 import org.json.JSONArray;
@@ -93,7 +94,7 @@ public class Paseo {
 				JSONObject jO = features.getJSONObject(i);
 				JSONObject properties = jO.getJSONObject("properties");
 				JSONObject geometry = jO.getJSONObject("geometry");
-				JSONObject geo_prop = geometry.getJSONObject("properties");
+				//JSONObject geo_prop = geometry.getJSONObject("properties"); // No usamos para nada??
 				JSONArray geo_coord = geometry.getJSONArray("coordinates");
 
 				//Paseo walk = new Paseo(jObject.getInt("id"),jObject.getString("name"),jObject.getString("description"));
@@ -156,27 +157,27 @@ public class Paseo {
 		this.pref.setLongitude(lon);
 	}
 	
-	public String check_collisions(Location l) {
+	public void check_collisions(Location l) {
 		// Recorre los puntos del mapa y revisa si estamos dentro del radio de uno de ellos
 		String p = "";
 		for (int i = 0; i<this.puntos.size(); i++){
-			this.puntos.get(i).checkColision(l);
+			if (this.puntos.get(i).getType() != SoundPoint.TYPE_WIFI_PLAY_LOOP) this.puntos.get(i).checkColision(l);
 			p = p + " | "+this.puntos.get(i).getFolder()+"/"+this.puntos.get(i).getSoundFile();
 		}
-		return p;
+		Log.d("AREAGO",p);
 	}
 	
-	public void check_collisions(ScanResult wifi) {
+	public void check_collisions(List<ScanResult> wifis) {
 		for (int i=0; i<this.puntos.size(); i++) {
-			this.puntos.get(i).checkColision(wifi);
+			if (this.puntos.get(i).getType()==SoundPoint.TYPE_WIFI_PLAY_LOOP) this.puntos.get(i).checkColision(wifis);
 			Log.d("AREAGO","ID: "+this.puntos.get(i).getId()+"tipo:"+this.puntos.get(i).getType());
 		}
 	}
 	
 	//public boolean exist(ArrayList<Paseo> walks) {
-	public boolean exist(HashMap walks) {
+	public boolean exist(HashMap<Integer,Paseo> walks) {
 		if (walks.get(this.id) != null) { // ya está mapeado un paseo con ese ID
-			Paseo p = (Paseo) walks.get(this.id);
+			//Paseo p = (Paseo) walks.get(this.id);
 				/*if (this.hash != -1) { // si tiene hash... 
 					if (p.hash != this.hash) { // se debe actualizar
 						p.update = false; // marcamos como no actualizado

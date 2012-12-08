@@ -1,32 +1,42 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
     android:baselineAligned="true"
-    android:orientation="vertical" >
+    android:orientation="vertical"
+    android:background="#ffffff">
 
     <ImageView
                 android:id="@+id/imageView1"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:src="@drawable/audifonos"
-                android:onClick="onClick" />
-
-    <TextView
-        android:id="@+id/textView1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Areago Audio Route" />
+                android:src="@drawable/areago_48dp"
+                android:onClick="onClick" 
+                android:background="#ffffff"/>
+    	<TextView
+    	    android:id="@+id/info_main"
+    	    android:layout_width="fill_parent"
+    	    android:layout_height="wrap_content"
+    	    android:background="#ffffff"
+    	    android:textColor="#000000"
+    	    android:textSize="6pt"
+    	    android:text="" />
+    	
+<!--     <TextView -->
+<!--         android:id="@+id/textView1" -->
+<!--         android:layout_width="wrap_content" -->
+<!--         android:layout_height="wrap_content" -->
+<!--         android:text="Areago Audio Route" /> -->
     
-    <TextView
-        android:id="@+id/wireless"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="" />
-    <TextView
-        android:id="@+id/gps"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="" />
+<!--     <TextView -->
+<!--         android:id="@+id/wireless" -->
+<!--         android:layout_width="wrap_content" -->
+<!--         android:layout_height="wrap_content" -->
+<!--         android:text="" /> -->
+<!--     <TextView -->
+<!--         android:id="@+id/gps" -->
+<!--         android:layout_width="wrap_content" -->
+<!--         android:layout_height="wrap_content" -->
+<!--         android:text="" /> -->
 
 </LinearLayout>

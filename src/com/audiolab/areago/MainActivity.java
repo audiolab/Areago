@@ -70,7 +70,7 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);        
         findViewById(R.id.imageView1).setClickable(false);
-
+        getWindow().setBackgroundDrawableResource(android.R.color.white);
         //Cargar datos de las preferencias par las globales
         SharedPreferences appPrefs = getSharedPreferences("com.audiolab.areago_preferences",MODE_PRIVATE);
         
@@ -85,29 +85,41 @@ public class MainActivity extends Activity {
         setTitle("AREAGO : Inicio");
 
         //Wireless
-        dialog = ProgressDialog.show(this,"Comprobando Wifi","Espera...",true);
-        
-        
+        //dialog = ProgressDialog.show(this,"Comprobando Wifi","Espera...",true);
+        TextView t = (TextView)findViewById(R.id.info_main);
+        t.setText("Iniciando Areago...\n");
+        t.setText(t.getText()+"Comprobando wifi\n");
         if (!init_wireless()) { 
-        	((TextView)findViewById(R.id.wireless)).setText("Wireless Inactivo. No podras descargar paseos nuevos.");
+//        	((TextView)findViewById(R.id.wireless)).setText("Wireless Inactivo. No podras descargar paseos nuevos.");
+        	t.setText(t.getText()+"Wifi inactivo: Actívalo para descargar paseos nuevos\n");
+        	Log.d("AREAGO","Wireless Inactivo. No podras descargar paseos nuevos.");
         }
         else { 
-        	((TextView)findViewById(R.id.wireless)).setText("Wireless Activado");
+//        	((TextView)findViewById(R.id.wireless)).setText("Wireless Activado");
+        	t.setText(t.getText()+"Wifi activado\n");
+        	Log.d("AREAGO","Wireless Activado");
         	}
         findViewById(R.id.imageView1).setClickable(true);
-        dialog.dismiss();
+        //dialog.dismiss();
         
         //GPS
-        dialog = ProgressDialog.show(this,"Comprobando GPS","Espera...",true);
-        ((TextView)findViewById(R.id.gps)).setText("GPS Activado");
+        //dialog = ProgressDialog.show(this,"Comprobando GPS","Espera...",true);
+        //((TextView)findViewById(R.id.gps)).setText("GPS Activado");
+        t.setText(t.getText()+"Comprobando GPS\n");
         if (!init_gps()) {
-        	((TextView)findViewById(R.id.gps)).setText("Está apagado el dispositivo GPS. Debe arrancarlo para inciar los paseos.");
+//        	((TextView)findViewById(R.id.gps)).setText("Está apagado el dispositivo GPS. Debe arrancarlo para inciar los paseos.");
+        	t.setText(t.getText()+"GPS desactivado: Debes arrancarlo para continuar\n");
+        	Log.d("AREAGO","Esta apagado del GPS");
         	findViewById(R.id.imageView1).setClickable(false);
+        } else {
+        	t.setText(t.getText()+"GPS Activado\n");
         }
-        dialog.dismiss();
+        //dialog.dismiss();
         
         //Storage
         // TODO: Comprobar el estado de la SD
+        
+        t.setText(t.getText()+"Pulsa sobre la imagen para continuar\n");
     }
 
     

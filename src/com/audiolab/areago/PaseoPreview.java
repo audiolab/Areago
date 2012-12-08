@@ -47,6 +47,8 @@ public class PaseoPreview extends Activity  {
 	    }
 	  };
 	
+	KeyguardManager  myKeyGuard;
+	KeyguardLock lock;
 	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -54,9 +56,8 @@ public class PaseoPreview extends Activity  {
 		setTitle("AREAGO : "+getIntent().getStringExtra("titulo"));
 		
 		//gestion bloqueo pantalla
-		KeyguardManager  myKeyGuard = (KeyguardManager)getSystemService(Context.KEYGUARD_SERVICE);
-		KeyguardLock lock = myKeyGuard.newKeyguardLock(KEYGUARD_SERVICE);
-        lock.disableKeyguard();
+		myKeyGuard = (KeyguardManager)getSystemService(Context.KEYGUARD_SERVICE);
+        lock = myKeyGuard.newKeyguardLock(KEYGUARD_SERVICE);
         
         v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 		
@@ -105,11 +106,12 @@ public class PaseoPreview extends Activity  {
 
 		super.onResume();
 		locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+		lock.disableKeyguard();
 	}
 
 	public void onPause() {
 		super.onPause();
-		//locManager.removeUpdates(locationListener); // Lo mantengo abierto cuando se apaga la pantalla
+		locManager.removeUpdates(locationListener); // Al volver a la pantalla de lista de paseo se debería parar...
 	}
 	
 	public void onStop() {
@@ -131,8 +133,9 @@ public class PaseoPreview extends Activity  {
     			
     			// Miramos si el punto actual está dentro del radio de acción de algun punto del paseo.
     			// Si nos hemos movido
-    			String info = walk.check_collisions(nl);
-    			((TextView)findViewById(R.id.log_view)).setText(info);
+    			walk.check_collisions(nl);
+    			//String info = walk.check_collisions(nl);
+    			//((TextView)findViewById(R.id.log_view)).setText(info);
     			}
     		}
 

@@ -29,6 +29,8 @@ import android.app.Dialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -45,7 +47,7 @@ import android.widget.Toast;
 public class ListActivityPaseos extends ListActivity implements View.OnClickListener {
 	
 	//ArrayList<Paseo> walks = new ArrayList<Paseo>();
-	HashMap walks = new HashMap();
+	HashMap<Integer,Paseo> walks = new HashMap<Integer,Paseo>();
 	File or;
 	File fold;
 	FileInputStream fIn;
@@ -97,14 +99,15 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 				
 				ScrollView sv = new ScrollView(this);
 				
-				LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
+				LayoutParams params = new LinearLayout.LayoutParams(300, LayoutParams.WRAP_CONTENT);
 				LinearLayout layout = new LinearLayout(this);
 				layout.setOrientation(LinearLayout.VERTICAL);
+				layout.setBackgroundResource(R.color.white);
 				//layout.setId(p.getId());
 				
 				ImageView img = new ImageView(this);
 				img.setLayoutParams(params);
-				img.setImageResource(R.drawable.audifonos);
+				img.setImageResource(R.drawable.areago_48dp);
 				layout.addView(img);
 				img.setClickable(true);
 				img.setOnClickListener(this);
@@ -112,68 +115,101 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 				//img.setId(i);
 
 
+				TextView tv;
 				
 				//Titulo
-				TextView tv = new TextView(this);
-				tv.setText("Nombre:");
-				tv.setLayoutParams(params);
-				layout.addView(tv);
+//				TextView tv = new TextView(this);
+//				tv.setBackgroundResource(R.color.white);
+//				tv.setTextColor(Color.BLACK);
+//				tv.setTypeface(null,Typeface.BOLD);
+//				tv.setText("Nombre:");
+//				tv.setLayoutParams(params);
+//				layout.addView(tv);
 				
 				tv = new TextView(this);
-				tv.setText(p.getTitle());
+				tv.setBackgroundResource(R.color.white);
+				tv.setTextColor(Color.BLACK);
+				tv.setTypeface(null,Typeface.BOLD);
+				tv.setText(String.valueOf(p.getId()) + " - "+p.getTitle());
 				tv.setLayoutParams(params);
 				layout.addView(tv);
 				
 				//ID
-				tv = new TextView(this);
-				tv.setText("ID:");
-				tv.setLayoutParams(params);
-				layout.addView(tv);
-				
-				tv = new TextView(this);
-				tv.setText(String.valueOf(p.getId()));
-				tv.setLayoutParams(params);
-				layout.addView(tv);
+//				tv = new TextView(this);
+//				tv.setBackgroundResource(R.color.white);
+//				tv.setTextColor(Color.BLACK);
+//				tv.setTypeface(null,Typeface.BOLD);
+//				tv.setText("ID:");
+//				tv.setLayoutParams(params);
+//				layout.addView(tv);
+//				
+//				
+//				tv = new TextView(this);
+//				tv.setBackgroundResource(R.color.white);
+//				tv.setTextColor(Color.BLACK);
+//				tv.setText(String.valueOf(p.getId()));
+//				tv.setLayoutParams(params);
+//				layout.addView(tv);
+//				tv.setTextColor(Color.BLACK);
 				
 				// Descripcion
+//				tv = new TextView(this);
+//				tv.setBackgroundResource(R.color.white);
+//				tv.setTextColor(Color.BLACK);
+//				tv.setText("Descripcion:");
+//				tv.setTypeface(null,Typeface.BOLD);
+//				tv.setLayoutParams(params);
+//				layout.addView(tv);
 				
 				tv = new TextView(this);
-				tv.setText("Descripcion:");
-				tv.setLayoutParams(params);
-				layout.addView(tv);
-				
-				tv = new TextView(this);
+				tv.setBackgroundResource(R.color.white);
+				tv.setTextColor(Color.BLACK);
 				tv.setText(p.getDescription());
 				tv.setLayoutParams(params);
 				layout.addView(tv);
 				
 				// Update
-				tv = new TextView(this);
-				tv.setText("Update:");
-				tv.setLayoutParams(params);
-				layout.addView(tv);
+//				tv = new TextView(this);
+//				tv.setBackgroundResource(R.color.white);
+//				tv.setTextColor(Color.BLACK);
+//				tv.setText("Update:");
+//				tv.setTypeface(null,Typeface.BOLD);
+//				tv.setLayoutParams(params);
+//				layout.addView(tv);
 				
 				
-				tv = new TextView(this);
-				tv.setText("ACTUALIZADO");
-				if (!p.isUpdate()) { 
-					tv.setText("NECESITA ACTUALIZACION");
-					layout.setBackgroundColor(0x55FF0000);
-				}
-				tv.setLayoutParams(params);
-				layout.addView(tv);
+				
 				
 				// Download
-				tv = new TextView(this);
-				tv.setText("Descarga:");
-				tv.setLayoutParams(params);
-				layout.addView(tv);
+//				tv = new TextView(this);
+//				tv.setBackgroundResource(R.color.white);
+//				tv.setTextColor(Color.BLACK);
+//				tv.setText("Descarga:");
+//				tv.setTypeface(null,Typeface.BOLD);
+//				tv.setLayoutParams(params);
+//				layout.addView(tv);
 				
 				tv = new TextView(this);
-				tv.setText("DESCARGADO");
-				if (!p.isDownload()) { 
-					tv.setText("NECESITA SER DESCARGADO");
-					layout.setBackgroundColor(0x5500FF00);
+				tv.setBackgroundResource(R.color.white);
+//				tv.setText("\nDESCARGADO");
+				
+				if (!p.isDownload()) {
+					tv.setTextColor(Color.RED);
+					tv.setText("\nNECESITA SER DESCARGADO");
+//					layout.setBackgroundColor(0xFF0000FF);
+					layout.setBackgroundResource(R.color.red);
+				} else {
+					TextView tvu = new TextView(this);
+					tvu.setBackgroundResource(R.color.white);
+					tvu.setTextColor(Color.RED);
+//					tvu.setText("\nACTUALIZADO");
+					if (!p.isUpdate()) { 
+						tvu.setText("\nNECESITA ACTUALIZACION");
+//						layout.setBackgroundColor(0x55FF0000);
+						layout.setBackgroundResource(R.color.blue);
+					}
+					tvu.setLayoutParams(params);
+					layout.addView(tvu);
 				}
 				tv.setLayoutParams(params);
 				layout.addView(tv);
@@ -182,8 +218,10 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 				LinearLayout.LayoutParams layoutParam = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.WRAP_CONTENT);
 
 				sv.addView(layout,layoutParam);
+				sv.setBackgroundResource(R.color.white);
 				
 				l.addView(sv);
+				l.setBackgroundResource(R.color.white);
 				
 			}
 		

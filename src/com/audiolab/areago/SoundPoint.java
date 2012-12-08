@@ -1,13 +1,13 @@
 package com.audiolab.areago;
 
 import java.io.IOException;
+import java.util.List;
 
 import android.content.Context;
 import android.location.Location;
 import android.location.LocationManager;
 import android.media.MediaPlayer;
 import android.net.wifi.ScanResult;
-import android.os.Vibrator;
 import android.util.Log;
 
 public class SoundPoint extends Location {
@@ -166,9 +166,11 @@ public class SoundPoint extends Location {
 		}
 	}
 
-	public void checkColision(ScanResult wifi) {
+	public void checkColision(List<ScanResult> results) {
 		// Revismaos puntos y si son de type WIFI comprobamos si alguno tiene el mismo ESSID
-		if (this.type==SoundPoint.TYPE_WIFI_PLAY_LOOP) {
+		// Deberíamos ver si el wifi de este punto está o no..
+		for (ScanResult wifi : results) {
+			// Si está aquí dentro debermos ejecutar el audio o cambiar el volumen
 			Log.d("AREAGO","Existe el punto: "+this.id+"con el ESSID: "+this.SSID+" - Con el Wifi: "+wifi.SSID);
 			if (wifi.SSID.equals(this.SSID)) { // Estamos en el radio de acción del wifi
 				Log.d("AREAGO","Hay colision en: "+this.id+"con el ESSID: "+this.SSID);
@@ -176,7 +178,7 @@ public class SoundPoint extends Location {
 					case SoundPoint.STATUS_STOPPED :
 						Log.d("AREAGO","Play");
 						this.mediaPlay(wifi);
-						break;
+						return; // Salimos de la funcinón..
 					case SoundPoint.STATUS_PLAYING :
 //						float vol = (float) ((-1)*wifi.level)/100;
 						float x = (float) (90+wifi.level);
@@ -187,11 +189,18 @@ public class SoundPoint extends Location {
 				    	if (vol < 0) vol = (float) 0;
 				    	Log.d("AREAGO","Change Volume : "+vol);
 						this.changeVolume(vol);
-						break;
+						return; //Salimos de la función
 				}
 			} 
 		}
-		
+		// No hemos encontrado el ESSID en la lista de los wifis disponibles
+		// Por lo tanto paramos si está ejecutado o no hacemos nada
+		switch(this.status){
+			case SoundPoint.STATUS_PLAYING:
+				Log.d("AREAGO","Stop Audio Wifi");
+				this.mediaStop();
+				break;
+		}
 	}
 	
 	public void stopSoundFile() {
