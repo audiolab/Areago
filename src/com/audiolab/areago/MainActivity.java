@@ -2,7 +2,6 @@ package com.audiolab.areago;
 
 
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -20,11 +19,12 @@ import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -68,11 +68,17 @@ public class MainActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, 
+                                WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);        
         findViewById(R.id.imageView1).setClickable(false);
         getWindow().setBackgroundDrawableResource(android.R.color.white);
         //Cargar datos de las preferencias par las globales
         SharedPreferences appPrefs = getSharedPreferences("com.audiolab.areago_preferences",MODE_PRIVATE);
+        
+        
+
         
         url = appPrefs.getString("editUrlServer", "");
         if ( url == "") {
