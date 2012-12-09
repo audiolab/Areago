@@ -153,48 +153,15 @@ public class Paseo {
 				//Paseo walk = new Paseo(jObject.getInt("id"),jObject.getString("name"),jObject.getString("description"));
 				// Me esto inventado el provider...
 				SoundPoint p = new SoundPoint(LocationManager.GPS_PROVIDER);
-				p.setLatitude(geo_coord.getDouble(1)); // TODO: No estoy seguro si el primer valor es LAT o LON...
-				p.setLongitude(geo_coord.getDouble(0));
-				p.setRadius((float) geometry.getDouble("radius"));
-				p.setSoundFile(properties.getString("file"));
-				p.setType(properties.getInt("type")); // Dentro de properties
-				p.setEssid(properties.getString("essid")); // TODO: Será obligatorio tener ESSID?? aunque sea ""
-				p.setAutofade(true); // por defecto le dejo activado el autofade.. 
+				if (!geo_coord.isNull(1)) p.setLatitude(geo_coord.getDouble(1)); // TODO: No estoy seguro si el primer valor es LAT o LON...
+				if (!geo_coord.isNull(0)) p.setLongitude(geo_coord.getDouble(0));
+				if (properties.has("radius")) p.setRadius((float) geometry.getDouble("radius"));
+				if (properties.has("file")) p.setSoundFile(properties.getString("file"));
+				if (properties.has("type")) p.setType(properties.getInt("type")); // Dentro de properties
+				if (properties.has("essid")) p.setEssid(properties.getString("essid")); // TODO: Será obligatorio tener ESSID?? aunque sea ""
+				if (properties.has("autofade")) {p.setAutofade(properties.getBoolean("autofade"));} else {p.setAutofade(true);} // por defecto le dejo activado el autofade.. 
 				// TODO: Hacer una variable global en sharedPreferences para guarda el lugar de descarga..
 				p.setFolder("/mnt/sdcard/Areago/"+this.getId()); // En JSON no nos define el ID del paseo? si
-				this.puntos.add(p);
-			} 
-		
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			//e.printStackTrace();
-			Log.d("AREAGO","Error al cargar los puntos del paseo: "+this.getTitle()+" @ "+str);
-		}
-	}
-	
-	public void create_points_OLD(String str) {
-		// Crea los puntos en el ArrayList a partir de un JArray
-		//
-		JSONArray jArray;
-		try {
-			jArray = new JSONArray(str);
-			
-		
-			for (int i = 0; i<jArray.length();i++) {
-				// Cargamos cada uno de los obj con los puntos
-				JSONObject jObject = jArray.getJSONObject(i);
-				//Paseo walk = new Paseo(jObject.getInt("id"),jObject.getString("name"),jObject.getString("description"));
-				// Me esto inventado el provider... que cosas..
-				SoundPoint p = new SoundPoint(LocationManager.GPS_PROVIDER);
-				p.setLatitude(jObject.getDouble("lat"));
-				p.setLongitude(jObject.getDouble("lon"));
-				p.setRadius((float) jObject.getDouble("radio"));
-				p.setSoundFile(jObject.getString("file"));
-				p.setId(jObject.getInt("id"));
-				p.setType(jObject.getInt("type"));
-				p.setAutofade(jObject.getBoolean("autofade"));
-				// TODO: Hacer una variable global en sharedPreferences para guarda el lugar de descarga..
-				p.setFolder("/mnt/sdcard/Areago/"+this.getId());
 				this.puntos.add(p);
 			} 
 		
@@ -223,7 +190,8 @@ public class Paseo {
 	public void check_collisions(List<ScanResult> wifis) {
 		for (int i=0; i<this.puntos.size(); i++) {
 			if (this.puntos.get(i).getType()==SoundPoint.TYPE_WIFI_PLAY_LOOP) this.puntos.get(i).checkColision(wifis);
-			Log.d("AREAGO","ID: "+this.puntos.get(i).getId()+"tipo:"+this.puntos.get(i).getType());
+			//Log.d("AREAGO","ID: "+this.puntos.get(i).getId()+"tipo:"+this.puntos.get(i).getType());
+			
 		}
 	}
 	

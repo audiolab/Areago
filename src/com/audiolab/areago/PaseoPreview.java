@@ -100,14 +100,10 @@ public class PaseoPreview extends Activity  {
     	//configure wifi
 		wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
 		WifiInfo info = wifi.getConnectionInfo();
-		Log.d("AREAGO","Wifi Status: "+info.toString());
-        if (receiver == null) receiver = new WiFiScanReceiver(this);
-        //List<WifiConfiguration> configs = wifi.getConfiguredNetworks();
-		
         if (receiver == null) receiver = new WiFiScanReceiver(this);
 		registerReceiver(receiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
 		
-		//configuramos el timer
+		//configuramos el timer para los wifis
 		timer = new Timer();
 		timer.schedule(updateTask, 0, 3000);
 	}
