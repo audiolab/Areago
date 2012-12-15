@@ -41,6 +41,7 @@ import android.view.WindowManager;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -107,22 +108,49 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 				layout.setOrientation(LinearLayout.VERTICAL);
 				layout.setBackgroundResource(R.color.white);
 				
+				// Cabecera
+				RelativeLayout rl = new RelativeLayout(this);
+				rl.setLayoutParams(params);
+				LayoutParams tparams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT);
+				//Imagen
 				ImageView img = new ImageView(this);
 				img.setLayoutParams(params);
 				img.setImageResource(R.drawable.areago_48dp);
-				layout.addView(img);
 				img.setClickable(true);
 				img.setOnClickListener(this);
 				img.setId(p.getId());
-
-
-				TextView tv;
+				//Texto Titulo
+				TextView timage = new TextView(this);
+				timage.setText(String.valueOf(p.getTitle()));
+				timage.setLayoutParams(params);
+				timage.setHeight(40);
+				timage.setGravity(android.view.Gravity.CENTER);
+				timage.setBackgroundColor(Color.argb(200, 0, 0, 0));
+				// Regla para alinear en la parte inferior centrado
+				RelativeLayout.LayoutParams rlp = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT); // You might want to tweak these to WRAP_CONTENT
+				rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+				rlp.addRule(RelativeLayout.CENTER_HORIZONTAL);
+				// Regla para la info del estado del paseo
+				RelativeLayout.LayoutParams pinfo = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT); // You might want to tweak these to WRAP_CONTENT
+				pinfo.setMargins(0, 10, 0, 0); // 50px de margen del superior del relativelayout
+				TextView tinfo = new TextView(this);
+				tinfo.setLayoutParams(params);
+				tinfo.setHeight(40);
+				tinfo.setGravity(android.view.Gravity.CENTER);
+				tinfo.setBackgroundColor(Color.argb(255, 102, 153, 0)); //verde?
+				//Añadimos imagen y texto
+				rl.addView(img);
+				rl.addView(timage, rlp);
+				//Añadimos el relative layout al layout general
+				layout.addView(rl);
 				
-				tv = new TextView(this);
+
+
+				TextView tv = new TextView(this);
 				tv.setBackgroundResource(R.color.white);
 				tv.setTextColor(Color.BLACK);
 				tv.setTypeface(null,Typeface.BOLD);
-				tv.setText(String.valueOf(p.getTitle()+" ["+p.getIdioma()+"]"));
+				tv.setText(String.valueOf(p.getIdioma()));
 				tv.setLayoutParams(params);
 				layout.addView(tv);
 				
@@ -138,24 +166,13 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 
 				
 				if (!p.isDownload()) {
-					tv.setTextColor(Color.RED);
-					tv.setText("\nNECESITA SER DESCARGADO");
-					layout.setBackgroundResource(R.color.red);
-				} else {
-					TextView tvu = new TextView(this);
-					tvu.setBackgroundResource(R.color.white);
-					tvu.setTextColor(Color.RED);
-					if (!p.isUpdate()) { 
-						tvu.setText("\nNECESITA ACTUALIZACION");
-						layout.setBackgroundResource(R.color.blue);
-					}
-					tvu.setLayoutParams(params);
-					layout.addView(tvu);
+					tinfo.setText("Descarga disponible");
+					rl.addView(tinfo,pinfo);
+				} else if (!p.isUpdate()) { 
+					tinfo.setText("Actualización disponible");
+					rl.addView(tinfo,pinfo);
 				}
-				tv.setLayoutParams(params);
-				layout.addView(tv);
-				
-				
+
 				LinearLayout.LayoutParams layoutParam = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.WRAP_CONTENT);
 
 				sv.addView(layout,layoutParam);
@@ -421,7 +438,6 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 		}
 		
 		protected void onProgressUpdate(String... progress) {
-			 //Log.d("ANDRO_ASYNC",progress[0]);
 			 mProgressDialog.setProgress(Integer.parseInt(progress[0]));
 		}
 

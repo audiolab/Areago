@@ -23,8 +23,9 @@ public class SoundPoint extends Location {
 	// TIPO DE PUNTOS TRADICIONALES
 	public static final int TYPE_PLAY_ONCE=0; // reproduce una vez el audio mientras esté en el radio
 	public static final int TYPE_PLAY_LOOP=1; // reproduce en loop mientras esté en el radio
+	public static final int TYPE_PLAY_UNTIL=2;
 	// TIPOS DE PUNTOS DE ACCIÓN
-	public static final int TYPE_TOGGLE=2; // Play/Stop segun el estado anterior del audio a que hace referencia 
+	public static final int TYPE_TOGGLE=6; // Play/Stop segun el estado anterior del audio a que hace referencia 
 	public static final int TYPE_PLAY_START=3; // Ejecuta un audio
 	public static final int TYPE_PLAY_STOP=4; // Para un audio
 	// TIPOS DE PUNTOS DE WIFI
@@ -110,7 +111,7 @@ public class SoundPoint extends Location {
 		
 	}
 	
-	// Deberíamos hacer aquí el trabajo con los diversos TYPES?
+	// PRE: Solo puntos de locacalización de sonido
 	public boolean checkColision(Location l){
 		float distance=this.distanceTo(l);
 		Log.d("AREAGO","Lat: "+l.getLatitude()+" - Lon: "+l.getLongitude()+ "- distance: "+distance);
@@ -120,6 +121,9 @@ public class SoundPoint extends Location {
 				case SoundPoint.STATUS_STOPPED :
 					switch (this.type){
 						case SoundPoint.TYPE_PLAY_ONCE:
+							if (!this.played) this.mediaPlay(l);
+							break;
+						case SoundPoint.TYPE_PLAY_UNTIL:
 							if (!this.played) this.mediaPlay(l);
 							break;
 						case SoundPoint.TYPE_PLAY_LOOP:
@@ -153,8 +157,8 @@ public class SoundPoint extends Location {
 					// SIGUE PARADO
 					break;
 				case SoundPoint.STATUS_PLAYING :
-					// LO PARAMOS O LO DEJAMOS PAUSADO?
-					this.mediaStop(); 
+					// LO PARAMOS O LO DEJAMOS PAUSADO? No.. 
+					if (this.status!=SoundPoint.TYPE_PLAY_UNTIL)this.mediaStop(); // El play_until lo dejamos hasta que se finalice el audio 
 					break;
 				case SoundPoint.STATUS_PAUSED :
 					// LO SEGUIMOS DEJANDO PAUSADO?
@@ -165,7 +169,8 @@ public class SoundPoint extends Location {
 			return false;
 		}
 	}
-
+	
+	// PRE Solo puntos de sonidos en localizaciones WIFI
 	public void checkColision(List<ScanResult> results) {
 		// Revismaos puntos y si son de type WIFI comprobamos si alguno tiene el mismo ESSID
 		// Deberíamos ver si el wifi de este punto está o no..

@@ -23,10 +23,6 @@ public class WiFiScanReceiver extends BroadcastReceiver {
 	  public void onReceive(Context c, Intent intent) {
 		  List<ScanResult> results = p.wifi.getScanResults();
 		  p.walk.check_collisions(results);
-//		  for (ScanResult result : results) {
-//				Log.d(TAG,"ESSID: "+result.SSID.toString()+" | LEVEL: "+result.level);
-//				
-//		  }
 	  }
 
 	}

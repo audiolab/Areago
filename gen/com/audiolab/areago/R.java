@@ -17,6 +17,7 @@ public final class R {
         public static final int black=0x7f050001;
         public static final int blue=0x7f050003;
         public static final int red=0x7f050002;
+        public static final int titleBG=0x7f050004;
         public static final int white=0x7f050000;
     }
     public static final class drawable {
@@ -33,13 +34,13 @@ public final class R {
         public static final int horizontalScrollView1=0x7f0a0005;
         public static final int idioma=0x7f0a000d;
         public static final int imageView1=0x7f0a0000;
-        public static final int info_main=0x7f0a0001;
         public static final int layout_general=0x7f0a0006;
         public static final int lbldescripcion=0x7f0a0009;
         public static final int lbltitulo=0x7f0a0007;
         public static final int preferences=0x7f0a000e;
-        public static final int scrollView1=0x7f0a0002;
+        public static final int scrollView1=0x7f0a0001;
         public static final int titulo=0x7f0a0008;
+        public static final int titulo_imagen=0x7f0a0002;
         public static final int webview=0x7f0a0003;
         public static final int wifi=0x7f0a000b;
         public static final int wifi_con=0x7f0a000c;

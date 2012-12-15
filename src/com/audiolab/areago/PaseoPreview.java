@@ -81,8 +81,8 @@ public class PaseoPreview extends Activity  {
 		
 //		((TextView)findViewById(R.id.titulo)).setText(getIntent().getStringExtra("titulo"));
 //		((TextView)findViewById(R.id.descripcion)).setText(getIntent().getStringExtra("descripcion"));
-		String html = "<h1>"+walk.getTitle()+"</h1>"+
-				"<p style='font-style:oblique;text-align:justify;padding-left:30px;'>"+walk.getExcerpt()+"</p>"+
+		((TextView)findViewById(R.id.titulo_imagen)).setText(walk.getTitle());
+		String html = "<p style='font-style:oblique;text-align:justify;padding-left:30px;'>"+walk.getExcerpt()+"</p>"+
 				"<div content='description' style='text-align:justify;'>"+walk.getDescription()+"</div>";
 		((WebView)findViewById(R.id.webview)).loadData(html, "text/html", "ISO-8859-1");
 		

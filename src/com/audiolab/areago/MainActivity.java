@@ -10,7 +10,10 @@ import java.net.URL;
 import java.net.URLConnection;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
@@ -92,18 +95,17 @@ public class MainActivity extends Activity {
 
         //Wireless
         //dialog = ProgressDialog.show(this,"Comprobando Wifi","Espera...",true);
-        TextView t = (TextView)findViewById(R.id.info_main);
-        t.setText("Iniciando Areago...\n");
-        t.setText(t.getText()+"Comprobando wifi - ");
+//        TextView t = (TextView)findViewById(R.id.info_main);
+//        t.setText("Iniciando Areago...\n");
+//        t.setText(t.getText()+"Comprobando wifi - ");
         if (!init_wireless()) { 
-//        	((TextView)findViewById(R.id.wireless)).setText("Wireless Inactivo. No podras descargar paseos nuevos.");
-        	t.setText(t.getText()+"Wifi inactivo: Actívalo para descargar paseos nuevos\n");
+//        	t.setText(t.getText()+"Wifi inactivo: Actívalo para descargar paseos nuevos\n");
         	Log.d("AREAGO","Wireless Inactivo. No podras descargar paseos nuevos.");
-        	return;
+        	showDialog(1);
         }
         else { 
 //        	((TextView)findViewById(R.id.wireless)).setText("Wireless Activado");
-        	t.setText(t.getText()+"Wifi activado\n");
+//        	t.setText(t.getText()+"Wifi activado\n");
         	Log.d("AREAGO","Wireless Activado");
         	}
         findViewById(R.id.imageView1).setClickable(true);
@@ -112,28 +114,32 @@ public class MainActivity extends Activity {
         //GPS
         //dialog = ProgressDialog.show(this,"Comprobando GPS","Espera...",true);
         //((TextView)findViewById(R.id.gps)).setText("GPS Activado");
-        t.setText(t.getText()+"Comprobando GPS - ");
+//        t.setText(t.getText()+"Comprobando GPS - ");
         if (!init_gps()) {
 //        	((TextView)findViewById(R.id.gps)).setText("Está apagado el dispositivo GPS. Debe arrancarlo para inciar los paseos.");
-        	t.setText(t.getText()+"GPS desactivado: Debes arrancarlo para continuar\n");
+//        	t.setText(t.getText()+"GPS desactivado: Debes arrancarlo para continuar\n");
         	Log.d("AREAGO","Esta apagado del GPS");
         	findViewById(R.id.imageView1).setClickable(false);
-        	return;
+        	showDialog(0);
+//        	Intent i = getIntent();
+//        	finish();
+//        	startActivity(i);
         } else {
-        	t.setText(t.getText()+"GPS Activado\n");
+//        	t.setText(t.getText()+"GPS Activado\n");
         }
         //dialog.dismiss();
         
         //Storage
         // TODO: Comprobar el estado de la SD
-        t.setText(t.getText()+"Comprobando tarjeta de memoria - ");
+//        t.setText(t.getText()+"Comprobando tarjeta de memoria - ");
         if ( !android.os.Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED) ) {	
-        	t.setText(t.getText()+"SDCard no es accesible, comprobar antes de continuar\n");
+//        	t.setText(t.getText()+"SDCard no es accesible, comprobar antes de continuar\n");
+        	showDialog(2);
         	findViewById(R.id.imageView1).setClickable(false);
         	return;
         }
         
-        t.setText(t.getText()+"Pulsa sobre la imagen para continuar\n");
+//        t.setText(t.getText()+"Pulsa sobre la imagen para continuar\n");
     }
 
     
@@ -200,8 +206,50 @@ public class MainActivity extends Activity {
 		// TODO Auto-generated method stub
     	ConnectivityManager connManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
     	NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-    	return mWifi.isConnected();
+    	return mWifi.isAvailable();
     	//return false;
+	}
+	
+	@Override
+	protected Dialog onCreateDialog(int id) {
+		AlertDialog.Builder builder;
+		builder = new AlertDialog.Builder(this);
+		switch(id) {
+		case 0: // GPS
+			builder.setMessage("Inicie el GPS para arrancar AREAGO")
+	        .setPositiveButton("Configurar", new DialogInterface.OnClickListener() {
+	            public void onClick(DialogInterface dialog, int id) {
+	            	startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+	            	Intent i = getIntent();
+	    			finish();
+	    			startActivity(i);
+	            }
+	        });
+			break;
+		case 1: // Wifi
+			builder.setMessage("Inicie el Wifi para arrancar AREAGO")
+	        .setPositiveButton("Configurar", new DialogInterface.OnClickListener() {
+	            public void onClick(DialogInterface dialog, int id) {
+	            	startActivity(new Intent(android.provider.Settings.ACTION_WIFI_SETTINGS));
+	            	Intent i = getIntent();
+	    			finish();
+	    			startActivity(i);
+	            }
+	        });
+			break;
+		case 2: // Storage
+			builder.setMessage("Comprueba el acceso a su tarjeta de memoria")
+	        .setPositiveButton("Configurar", new DialogInterface.OnClickListener() {
+	            public void onClick(DialogInterface dialog, int id) {
+	            	startActivity(new Intent(android.provider.Settings.ACTION_MEMORY_CARD_SETTINGS));
+	            	Intent i = getIntent();
+	    			finish();
+	    			startActivity(i);
+	            }
+	        });
+			break;
+		}
+		return builder.create();
 	}
 
 public void onResume() {
