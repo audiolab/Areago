@@ -35,6 +35,8 @@ public class SoundPoint extends Location {
 	private static final int STATUS_PLAYING=0;
 	private static final int STATUS_STOPPED=2;
 	private static final int STATUS_PAUSED=3;
+	private static final int STATUS_ACTIVATE=4;
+	private static final int STATUS_DEACTIVATE=5;
 	
 	// INFO DE MEDIA PLAYER
 	private MediaPlayer mp;
@@ -112,6 +114,7 @@ public class SoundPoint extends Location {
 	}
 	
 	// PRE: Solo puntos de locacalización de sonido
+	// PRE: Los puntos de trigger asociacios a un radio geografico tb se gestionan por aquí
 	public boolean checkColision(Location l){
 		float distance=this.distanceTo(l);
 		Log.d("AREAGO","Lat: "+l.getLatitude()+" - Lon: "+l.getLongitude()+ "- distance: "+distance);
@@ -145,6 +148,12 @@ public class SoundPoint extends Location {
 					// Volvemos a ejecutar el audio.
 					// REVISAR LA RAZON DE ESTE CASO ... posibilidad de 
 					//this.mediaPlay();
+					break;
+				case SoundPoint.STATUS_ACTIVATE :
+					// La acción del trigger ya ha sido ejecutada
+					break;
+				case SoundPoint.STATUS_DEACTIVATE:
+					// La acción del trigger no ha sido ejecutada
 					break;
 			}
 			// HABRÍA QUE MARCAR QUE ESTÁ DENTRO DEL CIRCULO?

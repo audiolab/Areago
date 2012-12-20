@@ -1,19 +1,22 @@
 package com.audiolab.areago;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.wifi.ScanResult;
 import android.os.Vibrator;
 import android.util.Log;
+import android.widget.ImageView;
 
 public class Paseo {
 	
@@ -22,6 +25,8 @@ public class Paseo {
 	private String idioma;
 	private String descripcion;
 	private String excerpt;
+	private String imagen = "none";
+	private Bitmap img = null;
 	private int grabaciones;
 	private int tamano;
 	private SoundPoint pref = new SoundPoint("paseo_reference"); // Punto de referencia de inicio / lat-lon
@@ -86,7 +91,32 @@ public class Paseo {
 		this.JsonPoints = points;
 	}
 	
+	public void setImage(String uri) {
+		this.imagen = uri;
+	}
+	
+	public void setBitmap(String file) {
+		//Crea un bitmap desde un path
+		File imgFile = new  File(file);
+		if(imgFile.exists()){
+		    this.img = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+		} // Gestionar si no hay icono.jpg??
+	}
+	
+	public void setBitmap(Bitmap bitmap) {
+		this.img = bitmap;
+	}
+	
 	// Consultoras
+	
+	//TODO: Buscar gestión de la imagen para no hacer dos tipología distintas...
+	public Bitmap getBitmap() {
+		return this.img;
+	}
+	public String getImage() {
+		return this.imagen;
+	}
+	
 	public String getTitle() {
 		return this.titulo; 
 	}
@@ -121,6 +151,12 @@ public class Paseo {
 	
 	public boolean isDownload() { // esta descargado?
 		return this.downlad;
+	}
+	
+	public boolean hasImage() {
+		if (this.imagen!="none") return true;
+		if (this.img!=null) return true;
+		else { return false; }
 	}
 	
 	// Acciones

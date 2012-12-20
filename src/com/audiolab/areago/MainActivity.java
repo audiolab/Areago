@@ -94,36 +94,21 @@ public class MainActivity extends Activity {
         setTitle("AREAGO : Inicio");
 
         //Wireless
-        //dialog = ProgressDialog.show(this,"Comprobando Wifi","Espera...",true);
-//        TextView t = (TextView)findViewById(R.id.info_main);
-//        t.setText("Iniciando Areago...\n");
-//        t.setText(t.getText()+"Comprobando wifi - ");
+
         if (!init_wireless()) { 
-//        	t.setText(t.getText()+"Wifi inactivo: Actívalo para descargar paseos nuevos\n");
         	Log.d("AREAGO","Wireless Inactivo. No podras descargar paseos nuevos.");
         	showDialog(1);
         }
         else { 
-//        	((TextView)findViewById(R.id.wireless)).setText("Wireless Activado");
-//        	t.setText(t.getText()+"Wifi activado\n");
         	Log.d("AREAGO","Wireless Activado");
         	}
         findViewById(R.id.imageView1).setClickable(true);
-        //dialog.dismiss();
         
         //GPS
-        //dialog = ProgressDialog.show(this,"Comprobando GPS","Espera...",true);
-        //((TextView)findViewById(R.id.gps)).setText("GPS Activado");
-//        t.setText(t.getText()+"Comprobando GPS - ");
         if (!init_gps()) {
-//        	((TextView)findViewById(R.id.gps)).setText("Está apagado el dispositivo GPS. Debe arrancarlo para inciar los paseos.");
-//        	t.setText(t.getText()+"GPS desactivado: Debes arrancarlo para continuar\n");
         	Log.d("AREAGO","Esta apagado del GPS");
         	findViewById(R.id.imageView1).setClickable(false);
         	showDialog(0);
-//        	Intent i = getIntent();
-//        	finish();
-//        	startActivity(i);
         } else {
 //        	t.setText(t.getText()+"GPS Activado\n");
         }
@@ -203,11 +188,15 @@ public class MainActivity extends Activity {
 
 
 	private boolean init_wireless() {
-		// TODO Auto-generated method stub
     	ConnectivityManager connManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
     	NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
     	return mWifi.isAvailable();
-    	//return false;
+	}
+	
+	private boolean isConnected() {
+		ConnectivityManager connManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+		NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+		return mWifi.isConnected();
 	}
 	
 	@Override
@@ -271,17 +260,19 @@ public void onPause() {
     					public void run(){
     					try {
     							// TODO: Activar cuando esté en funcionamiento la web
-    							string = init_rutas();
-    							Intent i = new Intent("com.audiolab.areago.ListActivityPaseos");
-    		        			i.putExtra("json", string);
-    		        			i.putExtra("lat", lat);
-    		        			i.putExtra("lon", lon);
-    							dialog.dismiss();
-    							startActivity(i);
-    						} catch (Exception e) {
-    							e.printStackTrace();
-    						}
+    						Intent i = new Intent("com.audiolab.areago.ListActivityPaseos");
+    						String json = "";
+    						if (isConnected()) json = init_rutas();
+    						i.putExtra("json", json);
+    						// Las referencias de localización del sujeto
+    						//i.putExtra("lat", lat);
+    						//i.putExtra("lon", lon);
+    						dialog.dismiss();
+    						startActivity(i);
+    					} catch (Exception e) {
+    						e.printStackTrace();
     					}
+    				}
 
 						private String init_rutas() {
 							// TODO Auto-generated method stub

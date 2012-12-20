@@ -9,6 +9,7 @@ import android.app.KeyguardManager.KeyguardLock;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -22,6 +23,7 @@ import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
 import android.webkit.WebView;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -55,9 +57,10 @@ public class PaseoPreview extends Activity  {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		Log.d("AREAGO","En PaseoPreview");
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, 
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		setContentView(R.layout.paseo_preview); 
+		setContentView(R.layout.paseo_preview);
 		setTitle("AREAGO : "+getIntent().getStringExtra("titulo"));
 		
 		//gestion bloqueo pantalla
@@ -76,15 +79,22 @@ public class PaseoPreview extends Activity  {
 		walk.setDescription(getIntent().getStringExtra("descripcion"));
 		walk.setExcerpt(getIntent().getStringExtra("excerpt"));
 		walk.setVibrator(v);
+		walk.setBitmap((Bitmap) getIntent().getParcelableExtra("imagen"));
 		if (JSONPoints.length()>0) { walk.create_points(JSONPoints); } else {Toast.makeText(this,"Este paseo no tiene puntos",Toast.LENGTH_LONG).show();}
 		
 		
 //		((TextView)findViewById(R.id.titulo)).setText(getIntent().getStringExtra("titulo"));
 //		((TextView)findViewById(R.id.descripcion)).setText(getIntent().getStringExtra("descripcion"));
+		
+		if (walk.hasImage()) { ((ImageView)findViewById(R.id.imagen)).setImageBitmap(walk.getBitmap()); }
+		else { ((ImageView)findViewById(R.id.imagen)).setImageResource(R.drawable.areago_48dp);}
+		((ImageView)findViewById(R.id.imagen)).setAdjustViewBounds(true);
+
 		((TextView)findViewById(R.id.titulo_imagen)).setText(walk.getTitle());
 		String html = "<p style='font-style:oblique;text-align:justify;padding-left:30px;'>"+walk.getExcerpt()+"</p>"+
 				"<div content='description' style='text-align:justify;'>"+walk.getDescription()+"</div>";
-		((WebView)findViewById(R.id.webview)).loadData(html, "text/html", "ISO-8859-1");
+		//((WebView)findViewById(R.id.webview)).loadData(html, "text/html; charset=UTF-8", null);
+		((WebView)findViewById(R.id.webview)).loadDataWithBaseURL("fake://not/needed", html, "text/html", "utf-8", "");
 		
     	locManager = (LocationManager) getSystemService(LOCATION_SERVICE);
     	locationListener = new PaseoLocationListener();

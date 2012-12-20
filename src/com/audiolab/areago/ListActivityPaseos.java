@@ -12,6 +12,7 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.HashMap;
@@ -29,6 +30,8 @@ import android.app.Dialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
@@ -36,9 +39,9 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -49,7 +52,6 @@ import android.widget.Toast;
 
 public class ListActivityPaseos extends ListActivity implements View.OnClickListener {
 	
-	//ArrayList<Paseo> walks = new ArrayList<Paseo>();
 	HashMap<Integer,Paseo> walks = new HashMap<Integer,Paseo>();
 	File or;
 	File fold;
@@ -115,7 +117,26 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 				//Imagen
 				ImageView img = new ImageView(this);
 				img.setLayoutParams(params);
-				img.setImageResource(R.drawable.areago_48dp);
+				if (p.hasImage()) {
+					try {
+					if (!p.isDownload()) { // Si la imagen es todavía una url
+						//Bitmap bitmap = BitmapFactory.decodeStream((InputStream)new URL(p.getImage()).getContent());
+					  Bitmap bitmap = BitmapFactory.decodeStream((InputStream)new URL(p.getImage()).getContent());
+					  img.setImageBitmap(bitmap);
+					} else { // La imagen ya está cargada como bitmap
+						img.setImageBitmap(p.getBitmap());
+					}
+					} catch (MalformedURLException e) {
+						img.setImageResource(R.drawable.areago_48dp);
+					} catch (IOException e) {
+							img.setImageResource(R.drawable.areago_48dp);
+					}
+				} 
+				else { 
+					Log.d("AREAGO","Añadiendo imagen default");
+					img.setImageResource(R.drawable.areago_48dp);
+				}
+				img.setAdjustViewBounds(true);
 				img.setClickable(true);
 				img.setOnClickListener(this);
 				img.setId(p.getId());
@@ -201,11 +222,12 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 				JSONObject jObject = jArray.getJSONObject(i);
 
 				Paseo walk = new Paseo(jObject.getInt("id"));
-				walk.setTitle(jObject.getString("nombre"));
-				walk.setDescription(jObject.getString("resumen"));
-				walk.setHash(jObject.getString("hash"));
-				walk.setGrabaciones(jObject.getInt("grabaciones"));
-				walk.setIdioma(jObject.getString("idioma"));
+				if (jObject.has("nombre")) walk.setTitle(jObject.getString("nombre"));
+				if (jObject.has("resumen")) walk.setDescription(jObject.getString("resumen"));
+				if (jObject.has("hash")) walk.setHash(jObject.getString("hash"));
+				if (jObject.has("grabaciones")) walk.setGrabaciones(jObject.getInt("grabaciones"));
+				if (jObject.has("idioma")) walk.setIdioma(jObject.getString("idioma"));
+				if (jObject.has("imagen")) walk.setImage(jObject.getString("imagen")); //imagen icono.jpg
 				//referencia
 
 			if (!walk.exist(walks)) {
@@ -234,7 +256,6 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
         	Writer writer = new StringWriter();
         	if ( fpaseos[i].isDirectory() ) {
         	try {
-//        		File jsondata = new File(fpaseos[i]+"/data.json");
         		File jsondata = new File(fpaseos[i]+"/info.json");
         		char[] buffer = new char[1024];
         		Reader reader = new BufferedReader(new FileReader(jsondata));
@@ -244,13 +265,14 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
         		}
         		reader.close();
         		
+        		
         	} catch (Exception e) {
         		Log.d("AREAGO","Error: "+e);
         	}
 
         	String JSONString = "";
         	JSONString = writer.toString();
-
+        	
         	//Parseamos el fichero data.json (objetoJson con id/descripcion/..
    
        		try {
@@ -271,6 +293,8 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 				walk.setDownloaded();// El paseo ya está descargado
 				walk.setUpdated();//Esta actualizado por defecto
 				walks.put(jObject.getInt("id"),walk);
+	       		// Recuperamos el bitmap de icono.jpg
+	       		walk.setBitmap(fpaseos[i]+"/icono.jpg");
 				
 				Log.d("AREAGO","Cargando el paseo: "+walk.getTitle()+" - ID:"+walk.getId());
 				
@@ -278,6 +302,7 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+       		
         	}
   
         }
@@ -321,6 +346,7 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 		i.putExtra("excerpt", p.getExcerpt());
 		i.putExtra("titulo", p.getTitle());
 		i.putExtra("id", p.getId());
+		i.putExtra("imagen", p.getBitmap());
 		Bundle value = new Bundle();
 		Log.d("AREAGO","Arrancamos el paseo: "+p.getId()+p.getPoints());
 
