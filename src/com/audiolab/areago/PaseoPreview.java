@@ -79,7 +79,8 @@ public class PaseoPreview extends Activity  {
 		walk.setDescription(getIntent().getStringExtra("descripcion"));
 		walk.setExcerpt(getIntent().getStringExtra("excerpt"));
 		walk.setVibrator(v);
-		walk.setBitmap((Bitmap) getIntent().getParcelableExtra("imagen"));
+		//walk.setBitmap((Bitmap) getIntent().getParcelableExtra("imagen"));
+		walk.setBitmap(getIntent().getStringExtra("path_image"));
 		if (JSONPoints.length()>0) { walk.create_points(JSONPoints); } else {Toast.makeText(this,"Este paseo no tiene puntos",Toast.LENGTH_LONG).show();}
 		
 		

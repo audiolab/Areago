@@ -159,6 +159,10 @@ public class Paseo {
 		else { return false; }
 	}
 	
+	public String getPathImage() {
+		return "/sdcard/Areago/"+this.id+"/icono.jpg";
+	}
+	
 	// Acciones
 	public void stop() {
 		for (int i = 0; i<this.puntos.size(); i++) {

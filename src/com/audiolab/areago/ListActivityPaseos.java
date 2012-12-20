@@ -60,7 +60,7 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 	private ProgressDialog mProgressDialog;
 	View vClicked;
 	
-	String PATH_PASEOS;
+	public String PATH_PASEOS;
 	
 	@Override
 	public void onCreate (Bundle savedInstanceState) {
@@ -346,8 +346,8 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 		i.putExtra("excerpt", p.getExcerpt());
 		i.putExtra("titulo", p.getTitle());
 		i.putExtra("id", p.getId());
-		i.putExtra("imagen", p.getBitmap());
-		Bundle value = new Bundle();
+		//i.putExtra("imagen", p.getBitmap());
+		i.putExtra("path_image", p.getPathImage());
 		Log.d("AREAGO","Arrancamos el paseo: "+p.getId()+p.getPoints());
 
 		startActivity(i);
