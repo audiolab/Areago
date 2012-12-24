@@ -9,6 +9,7 @@ import android.location.LocationManager;
 import android.media.MediaPlayer;
 import android.net.wifi.ScanResult;
 import android.util.Log;
+import android.widget.Toast;
 
 public class SoundPoint extends Location {
 	
@@ -19,6 +20,8 @@ public class SoundPoint extends Location {
 	private Context mContext;
 	private int type;
 	private String SSID;
+	private int layer=0;
+	private int destLayer=0;
 	
 	// TIPO DE PUNTOS TRADICIONALES
 	public static final int TYPE_PLAY_ONCE=0; // reproduce una vez el audio mientras esté en el radio
@@ -75,6 +78,8 @@ public class SoundPoint extends Location {
 	
 	public void setType(int type) {
 		this.type = type;
+		if (this.type == SoundPoint.TYPE_TOGGLE) this.status = SoundPoint.STATUS_DEACTIVATE; // lo iniciamos sin estar activado
+		else if ( (this.type == SoundPoint.TYPE_PLAY_LOOP) || (this.type == SoundPoint.TYPE_PLAY_ONCE) || (this.type == SoundPoint.TYPE_PLAY_UNTIL) || (this.type == SoundPoint.TYPE_WIFI_PLAY_LOOP) ) { this.status = SoundPoint.STATUS_STOPPED; }
 	}
 	
 	public int getType() {
@@ -96,6 +101,27 @@ public class SoundPoint extends Location {
 	public void setSoundFile(String soundFile) {
 		this.soundFile = soundFile;
 	}
+	
+	public void setLayer(int layer) {
+		this.layer = layer;
+	}
+	
+	public void setChangeToLayer(int l) {
+		this.destLayer = l;
+	}
+	
+	public int getLayer() {
+		return this.layer;
+	}
+	
+	public int getLayerDestination() {
+		return this.destLayer;
+	}
+	
+	public boolean isExecuted() {
+		if (this.status == SoundPoint.STATUS_DEACTIVATE) { return false; }
+		else { return true; }
+	}
 
 	public SoundPoint(Location l) {
 		super(l);
@@ -115,7 +141,8 @@ public class SoundPoint extends Location {
 	
 	// PRE: Solo puntos de locacalización de sonido
 	// PRE: Los puntos de trigger asociacios a un radio geografico tb se gestionan por aquí
-	public boolean checkColision(Location l){
+	// Devuelve la misma capa si no hay cambio o devuelve la capa de destino si hay un toogle de cambio de capa
+	public int checkColision(Location l){
 		float distance=this.distanceTo(l);
 		Log.d("AREAGO","Lat: "+l.getLatitude()+" - Lon: "+l.getLongitude()+ "- distance: "+distance);
 		if (distance<=this.radius){
@@ -151,14 +178,17 @@ public class SoundPoint extends Location {
 					break;
 				case SoundPoint.STATUS_ACTIVATE :
 					// La acción del trigger ya ha sido ejecutada
-					break;
+					// TODO: De momento se va a poder ejecutar tants veces como se entre.. se podría limitar..
+					return this.layer;
 				case SoundPoint.STATUS_DEACTIVATE:
 					// La acción del trigger no ha sido ejecutada
-					break;
+					Log.d("AREAGO","Cambio de capa"+this.destLayer);
+					return this.destLayer;
+					//TODO: Deberíamos marcarla para que no se volviera a ejecutar???
 			}
 			// HABRÍA QUE MARCAR QUE ESTÁ DENTRO DEL CIRCULO?
 			//salido = false; // no ha salido del círculo
-			return true;
+			//return this.layer;
 		} else {
 			//Log.d("AREAGO","NO Colisiona el punto"+this.id);
 			switch (status) {
@@ -174,47 +204,57 @@ public class SoundPoint extends Location {
 					break;
 			}
 			this.played = false; // Si estamos fuera del radio ya podemos volver a darle para que suene al volver a entrar
-			// HABRÍA QUE MARCAR QUE ESTA FUERA DEL CIRCULO?
-			return false;
+			// TODO: HABRÍA QUE MARCAR QUE ESTA FUERA DEL CIRCULO?
+			//return false;
 		}
+		return this.layer;
 	}
 	
 	// PRE Solo puntos de sonidos en localizaciones WIFI
-	public void checkColision(List<ScanResult> results) {
+	public int checkColision(List<ScanResult> results) {
 		// Revismaos puntos y si son de type WIFI comprobamos si alguno tiene el mismo ESSID
 		// Deberíamos ver si el wifi de este punto está o no..
 		for (ScanResult wifi : results) {
 			// Si está aquí dentro debermos ejecutar el audio o cambiar el volumen
-			Log.d("AREAGO","Existe el punto: "+this.id+"con el ESSID: "+this.SSID+" - Con el Wifi: "+wifi.SSID);
+			//Log.d("AREAGO","Existe el punto: "+this.id+"con el ESSID: "+this.SSID+" - Con el Wifi: "+wifi.SSID);
 			if (wifi.SSID.equals(this.SSID)) { // Estamos en el radio de acción del wifi
-				Log.d("AREAGO","Hay colision en: "+this.id+"con el ESSID: "+this.SSID);
-				switch (this.status) {
-					case SoundPoint.STATUS_STOPPED :
-						Log.d("AREAGO","Play");
-						this.mediaPlay(wifi);
-						return; // Salimos de la funcinón..
-					case SoundPoint.STATUS_PLAYING :
-//						float vol = (float) ((-1)*wifi.level)/100;
-						float x = (float) (90+wifi.level);
-						if (x<-1) x=0;
-						if (x>90) x=90;
-						float vol = x/90;
-				    	if (vol > 1.0) vol = (float) 1;
-				    	if (vol < 0) vol = (float) 0;
-				    	Log.d("AREAGO","Change Volume : "+vol);
-						this.changeVolume(vol);
-						return; //Salimos de la función
+				//Log.d("AREAGO","Hay colision en: "+this.id+"con el ESSID: "+this.SSID);
+				if (this.type == SoundPoint.TYPE_WIFI_PLAY_LOOP) {
+					switch (this.status) {
+						case SoundPoint.STATUS_STOPPED :
+							//Log.d("AREAGO","Play");
+							this.mediaPlay(wifi);
+							break; 
+						case SoundPoint.STATUS_PLAYING :
+	//						float vol = (float) ((-1)*wifi.level)/100;
+							float x = (float) (90+wifi.level);
+							if (x<-1) x=0;
+							if (x>90) x=90;
+							float vol = x/90;
+					    	if (vol > 1.0) vol = (float) 1;
+					    	if (vol < 0) vol = (float) 0;
+					    	//Log.d("AREAGO","Change Volume : "+vol);
+							this.changeVolume(vol);
+							break; 
+					}
+				} else if (this.type == SoundPoint.TYPE_TOGGLE) {
+					if (this.status == SoundPoint.STATUS_DEACTIVATE) { 
+						Log.d("AREAGO","Cambio de capa"+this.destLayer);
+						return this.destLayer; 
+						}
 				}
+				return this.layer;
 			} 
 		}
 		// No hemos encontrado el ESSID en la lista de los wifis disponibles
-		// Por lo tanto paramos si está ejecutado o no hacemos nada
+		// Por lo tanto paramos si está ejecutado lo paramos o no hacemos nada
 		switch(this.status){
 			case SoundPoint.STATUS_PLAYING:
-				Log.d("AREAGO","Stop Audio Wifi");
+				//Log.d("AREAGO","Stop Audio Wifi");
 				this.mediaStop();
 				break;
 		}
+		return this.layer;
 	}
 	
 	public void stopSoundFile() {

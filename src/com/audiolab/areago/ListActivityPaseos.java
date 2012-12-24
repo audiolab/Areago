@@ -348,7 +348,7 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 		i.putExtra("id", p.getId());
 		//i.putExtra("imagen", p.getBitmap());
 		i.putExtra("path_image", p.getPathImage());
-		Log.d("AREAGO","Arrancamos el paseo: "+p.getId()+p.getPoints());
+		//Log.d("AREAGO","Arrancamos el paseo: "+p.getId()+p.getPoints());
 
 		startActivity(i);
 	}

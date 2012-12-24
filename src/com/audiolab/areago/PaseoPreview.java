@@ -58,8 +58,8 @@ public class PaseoPreview extends Activity  {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		Log.d("AREAGO","En PaseoPreview");
-		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, 
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		//getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, 
+        //        WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		setContentView(R.layout.paseo_preview);
 		setTitle("AREAGO : "+getIntent().getStringExtra("titulo"));
 		
@@ -124,6 +124,7 @@ public class PaseoPreview extends Activity  {
 		super.onResume();
 		locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
 		lock.disableKeyguard();
+		((TextView)findViewById(R.id.gps)).setText("Layer: "+walk.getLayer());
 	}
 
 	public void onPause() {
@@ -143,7 +144,7 @@ public class PaseoPreview extends Activity  {
     	public void onLocationChanged(Location location) {
     		// TODO Auto-generated method stub
     		if (location != null) {
-    			((TextView)findViewById(R.id.gps)).setText("Posición: "+location.getLatitude()+"/"+location.getLongitude()+"/"+location.getAccuracy());
+    			((TextView)findViewById(R.id.gps)).setText("Layer: "+walk.getLayer()+" Posición: "+location.getLatitude()+"/"+location.getLongitude()+"/"+location.getAccuracy());
     			SoundPoint nl = new SoundPoint(location);
     			Log.d("AREAGO","Location changed");
     			

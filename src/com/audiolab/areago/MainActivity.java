@@ -70,6 +70,16 @@ public class MainActivity extends Activity {
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
+    	
+    	// TODO: En Android 4 hace falta añadirle el boton de preferences
+    	// TODO: Hay que entrar y salir para volver a cargar los paseos.
+    	// TODO: 	Lanzamiento de capas a traves de triggers
+    	// 			Existe una capa 0 que es la básica que siempre se ejecuta, y luego hay capas que se entran a partir de triggers
+    	//			En la capa 0 se pueden poner ambientes... y en las otras capas se pueden añadir otras historias con el Atributo CAPA
+    	//			Cambiamos en properties del feature una propiedad que sea capa
+    	//			Añadimos un nuevo tipo llamado CHANGE_LAYER con un atributo CAPA_DESTINO
+    	
+    	
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, 

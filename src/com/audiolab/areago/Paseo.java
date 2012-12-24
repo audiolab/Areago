@@ -36,10 +36,12 @@ public class Paseo {
 	private String JsonPoints; // Listado de puntos del mapa en Json Array
 	private ArrayList<SoundPoint> puntos = new ArrayList<SoundPoint>();
 	private Vibrator vibrator;
+	private int layer = 0; // por defecto el paseo se inicia en la layer 0
 	
 	// Creadoras
 	public Paseo(int id) {
 		this.id = id;
+		this.layer = 0; // iniciamos el paseo en el layer 0
 	}
 	
 	// Modificadoras
@@ -113,6 +115,7 @@ public class Paseo {
 	public Bitmap getBitmap() {
 		return this.img;
 	}
+	
 	public String getImage() {
 		return this.imagen;
 	}
@@ -143,6 +146,10 @@ public class Paseo {
 	
 	public String getIdioma() {
 		return this.idioma;
+	}
+	
+	public int getLayer() {
+		return this.layer;
 	}
 	
 	public boolean isUpdate() { //esta actualizado? false no está actualizado 
@@ -199,7 +206,9 @@ public class Paseo {
 				if (properties.has("file")) p.setSoundFile(properties.getString("file"));
 				if (properties.has("type")) p.setType(properties.getInt("type")); // Dentro de properties
 				if (properties.has("essid")) p.setEssid(properties.getString("essid")); // TODO: Será obligatorio tener ESSID?? aunque sea ""
-				if (properties.has("autofade")) {p.setAutofade(properties.getBoolean("autofade"));} else {p.setAutofade(true);} // por defecto le dejo activado el autofade.. 
+				if (properties.has("autofade")) {p.setAutofade(properties.getBoolean("autofade"));} else {p.setAutofade(true);} // por defecto le dejo activado el autofade..
+				if (properties.has("layer")) {p.setLayer(properties.getInt("layer")); } else {p.setLayer(0);} // por defecto en la 0
+				if (properties.has("destLayer")) {p.setChangeToLayer(properties.getInt("destLayer")); } else {p.setChangeToLayer(0);} // por defecto dirige a la 0
 				// TODO: Hacer una variable global en sharedPreferences para guarda el lugar de descarga..
 				p.setFolder("/mnt/sdcard/Areago/"+this.getId()); // En JSON no nos define el ID del paseo? si
 				this.puntos.add(p);
@@ -221,7 +230,9 @@ public class Paseo {
 		// Recorre los puntos del mapa y revisa si estamos dentro del radio de uno de ellos
 		String p = "";
 		for (int i = 0; i<this.puntos.size(); i++){
-			if (this.puntos.get(i).getType() != SoundPoint.TYPE_WIFI_PLAY_LOOP) this.puntos.get(i).checkColision(l);
+			int type = this.puntos.get(i).getType();
+			int layer = this.puntos.get(i).getLayer();
+			if ( (layer == this.layer) && ((type == SoundPoint.TYPE_PLAY_LOOP) || (type == SoundPoint.TYPE_PLAY_ONCE) || (type == SoundPoint.TYPE_PLAY_UNTIL) || (type==SoundPoint.TYPE_TOGGLE)) ) this.layer = this.puntos.get(i).checkColision(l); // se reproduce algun tipo de sonido
 			p = p + " | "+this.puntos.get(i).getFolder()+"/"+this.puntos.get(i).getSoundFile();
 		}
 		Log.d("AREAGO",p);
@@ -229,9 +240,10 @@ public class Paseo {
 	
 	public void check_collisions(List<ScanResult> wifis) {
 		for (int i=0; i<this.puntos.size(); i++) {
-			if (this.puntos.get(i).getType()==SoundPoint.TYPE_WIFI_PLAY_LOOP) this.puntos.get(i).checkColision(wifis);
+			int type = this.puntos.get(i).getType();
+			int layer = this.puntos.get(i).getLayer();
+			if ( (type==SoundPoint.TYPE_WIFI_PLAY_LOOP || type==SoundPoint.TYPE_TOGGLE) && layer==this.layer) this.layer = this.puntos.get(i).checkColision(wifis);
 			//Log.d("AREAGO","ID: "+this.puntos.get(i).getId()+"tipo:"+this.puntos.get(i).getType());
-			
 		}
 	}
 	
