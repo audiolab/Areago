@@ -107,13 +107,12 @@ public class PaseoPreview extends Activity  {
     	//Vibraciones
     	
     	v.vibrate(300);
-    	
-    	//configure wifi
-		wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-		WifiInfo info = wifi.getConnectionInfo();
-        if (receiver == null) receiver = new WiFiScanReceiver(this);
-		registerReceiver(receiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
 		
+    	//configure wifi
+    	wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+    	if (receiver == null) receiver = new WiFiScanReceiver(this);
+    	registerReceiver(receiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+    	
 		//configuramos el timer para los wifis
 		timer = new Timer();
 		timer.schedule(updateTask, 0, 3000);
@@ -125,17 +124,36 @@ public class PaseoPreview extends Activity  {
 		locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
 		lock.disableKeyguard();
 		((TextView)findViewById(R.id.gps)).setText("Layer: "+walk.getLayer());
+		if (receiver == null) { 
+			receiver = new WiFiScanReceiver(this);
+			registerReceiver(receiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+		}
 	}
 
 	public void onPause() {
 		super.onPause();
-		locManager.removeUpdates(locationListener); // Al volver a la pantalla de lista de paseo se debería parar...
+		//locManager.removeUpdates(locationListener); // TODO: Al volver a la pantalla de lista de paseo se debería parar... Y lo queremos así?
+		Log.d("AREAGO","onPause");
 	}
 	
 	public void onStop() {
 		super.onStop();
 		this.walk.stop();
-		unregisterReceiver(receiver);
+		try { 
+			unregisterReceiver(receiver); // TODO: Peta cuando no está ejecutandose el receiver y se quiere parar...
+		} catch (RuntimeException e) {
+			e.printStackTrace();
+		}
+		locManager.removeUpdates(locationListener);
+		Log.d("AREAGO","onStop");
+	}
+	
+	public void onDestroy() {
+		super.onDestroy();
+//		this.walk.stop();
+//		unregisterReceiver(receiver);
+//		locManager.removeUpdates(locationListener);
+		Log.d("AREAGO","onDestroy");
 	}
 	
 	// INFO: Gestión del GPS

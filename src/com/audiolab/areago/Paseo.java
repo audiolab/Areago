@@ -202,7 +202,7 @@ public class Paseo {
 				SoundPoint p = new SoundPoint(LocationManager.GPS_PROVIDER);
 				if (!geo_coord.isNull(1)) p.setLatitude(geo_coord.getDouble(1)); // TODO: No estoy seguro si el primer valor es LAT o LON...
 				if (!geo_coord.isNull(0)) p.setLongitude(geo_coord.getDouble(0));
-				if (properties.has("radius")) p.setRadius((float) geometry.getDouble("radius"));
+				if (geometry.has("radius")) p.setRadius((float) geometry.getDouble("radius"));
 				if (properties.has("file")) p.setSoundFile(properties.getString("file"));
 				if (properties.has("type")) p.setType(properties.getInt("type")); // Dentro de properties
 				if (properties.has("essid")) p.setEssid(properties.getString("essid")); // TODO: Será obligatorio tener ESSID?? aunque sea ""
@@ -232,19 +232,30 @@ public class Paseo {
 		for (int i = 0; i<this.puntos.size(); i++){
 			int type = this.puntos.get(i).getType();
 			int layer = this.puntos.get(i).getLayer();
-			if ( (layer == this.layer) && ((type == SoundPoint.TYPE_PLAY_LOOP) || (type == SoundPoint.TYPE_PLAY_ONCE) || (type == SoundPoint.TYPE_PLAY_UNTIL) || (type==SoundPoint.TYPE_TOGGLE)) ) this.layer = this.puntos.get(i).checkColision(l); // se reproduce algun tipo de sonido
+			if ( (type == SoundPoint.TYPE_PLAY_LOOP) || (type == SoundPoint.TYPE_PLAY_ONCE) || (type == SoundPoint.TYPE_PLAY_UNTIL) || (type==SoundPoint.TYPE_TOGGLE) ) {
+				if (checkLayer(layer)) { this.layer = this.puntos.get(i).checkColision(l); } // se reproduce algun tipo de sonido
+				else { this.puntos.get(i).stopSoundFile(); } // Debemos parar la reproducción de los archivos que ya no deberían estar sonando
+			}
 			p = p + " | "+this.puntos.get(i).getFolder()+"/"+this.puntos.get(i).getSoundFile();
 		}
-		Log.d("AREAGO",p);
+		//Log.d("AREAGO",p);
 	}
 	
 	public void check_collisions(List<ScanResult> wifis) {
 		for (int i=0; i<this.puntos.size(); i++) {
 			int type = this.puntos.get(i).getType();
 			int layer = this.puntos.get(i).getLayer();
-			if ( (type==SoundPoint.TYPE_WIFI_PLAY_LOOP || type==SoundPoint.TYPE_TOGGLE) && layer==this.layer) this.layer = this.puntos.get(i).checkColision(wifis);
-			//Log.d("AREAGO","ID: "+this.puntos.get(i).getId()+"tipo:"+this.puntos.get(i).getType());
+			if ( type==SoundPoint.TYPE_WIFI_PLAY_LOOP || type==SoundPoint.TYPE_TOGGLE ) {
+				if (checkLayer(layer)) { this.layer = this.puntos.get(i).checkColision(wifis); }
+				else {this.puntos.get(i).stopSoundFile();}		
+			}
 		}
+	}
+	
+	public boolean checkLayer(int l){
+		// TODO: Deberíamos dar como cierto cuando decidamos que tipo de capa es la Comodín, de momento no hay comodín
+		if (l==this.layer) return true;
+		return false;
 	}
 	
 	public boolean exist(HashMap<Integer,Paseo> walks) {

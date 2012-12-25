@@ -121,6 +121,7 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 					try {
 					if (!p.isDownload()) { // Si la imagen es todavía una url
 						//Bitmap bitmap = BitmapFactory.decodeStream((InputStream)new URL(p.getImage()).getContent());
+						// TODO: Que pasa si no hay wifi? No tendremos la lista de paseos online y no entraremos aqui
 					  Bitmap bitmap = BitmapFactory.decodeStream((InputStream)new URL(p.getImage()).getContent());
 					  img.setImageBitmap(bitmap);
 					} else { // La imagen ya está cargada como bitmap

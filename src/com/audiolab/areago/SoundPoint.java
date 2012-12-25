@@ -144,9 +144,9 @@ public class SoundPoint extends Location {
 	// Devuelve la misma capa si no hay cambio o devuelve la capa de destino si hay un toogle de cambio de capa
 	public int checkColision(Location l){
 		float distance=this.distanceTo(l);
-		Log.d("AREAGO","Lat: "+l.getLatitude()+" - Lon: "+l.getLongitude()+ "- distance: "+distance);
+		Log.d("AREAGO","Colision["+this.getId()+"]: Lat: "+l.getLatitude()+" - Lon: "+l.getLongitude()+ "- distance: "+distance+"/ radius: "+this.radius);
 		if (distance<=this.radius){
-			Log.d("AREAGO","Colisiona el punto"+this.id+" Estado reproducc: "+this.status);
+			Log.d("AREAGO","[****] Colisiona el punto"+this.id+" Estado reproducc: "+this.status);
 			switch (this.status) {
 				case SoundPoint.STATUS_STOPPED :
 					switch (this.type){
@@ -182,7 +182,7 @@ public class SoundPoint extends Location {
 					return this.layer;
 				case SoundPoint.STATUS_DEACTIVATE:
 					// La acción del trigger no ha sido ejecutada
-					Log.d("AREAGO","Cambio de capa"+this.destLayer);
+					Log.d("AREAGO","GPS Cambio de capa"+this.destLayer);
 					return this.destLayer;
 					//TODO: Deberíamos marcarla para que no se volviera a ejecutar???
 			}
@@ -239,7 +239,7 @@ public class SoundPoint extends Location {
 					}
 				} else if (this.type == SoundPoint.TYPE_TOGGLE) {
 					if (this.status == SoundPoint.STATUS_DEACTIVATE) { 
-						Log.d("AREAGO","Cambio de capa"+this.destLayer);
+						Log.d("AREAGO","wifi Cambio de capa"+this.destLayer);
 						return this.destLayer; 
 						}
 				}
@@ -264,17 +264,17 @@ public class SoundPoint extends Location {
 	private void mediaStop(){
 		this.mp.stop();
 		this.mp.release();
-		status=STATUS_STOPPED;
+		this.status=STATUS_STOPPED;
 	}
 	
 	private void pauseSoundFile() {
 		this.mp.pause();
-		status=STATUS_PAUSED;
+		this.status=STATUS_PAUSED;
 	}
 	
 	private void unpauseSoundFile() {
 		this.mp.start();
-		status=STATUS_PLAYING;
+		this.status=STATUS_PLAYING;
 	}
 	
 	private void changeVolume(float v) {
