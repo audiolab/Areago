@@ -8,6 +8,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.media.MediaPlayer;
 import android.net.wifi.ScanResult;
+import android.os.CountDownTimer;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -22,6 +23,12 @@ public class SoundPoint extends Location {
 	private String SSID;
 	private int layer=0;
 	private int destLayer=0;
+	// Volumen 
+	public float volume=1;
+	public float vol;
+	public float tVolume;
+	public int increment=100;
+	public int fadeTime=500; // medio segundo de fade
 	
 	// TIPO DE PUNTOS TRADICIONALES
 	public static final int TYPE_PLAY_ONCE=0; // reproduce una vez el audio mientras esté en el radio
@@ -157,6 +164,7 @@ public class SoundPoint extends Location {
 							if (!this.played) this.mediaPlay(l);
 							break;
 						case SoundPoint.TYPE_PLAY_LOOP:
+							Log.d("AREAGO","Playing audio Loop");
 							this.mediaPlay(l);
 							break;
 						// EL RESTO DE TYPE NO AFECTA ??
@@ -166,10 +174,15 @@ public class SoundPoint extends Location {
 					// Seguimos reproduciendo
 					// TODO: cambia el volumen si es necesario..
 //						if(this.autofade) this.changeVolume(l);
-						float vol = (float) this.distanceTo(l)/this.radius;
-				    	if (vol > 1.0) vol = (float) 1;
-				    	if (vol < 0) vol = (float) 0;
-				    	this.changeVolume(vol);
+						if (this.autofade) {
+							float volume = (float) 1.0 - (float) this.distanceTo(l)/this.radius;
+							if (volume > 1.0) volume = (float) 1.0;
+							else if (volume < 0) volume = (float) 0.0;
+					    	Log.d("AREAGO","[GPS]["+this.soundFile+"]Change Volume : "+volume);
+					    	this.changeVolume(volume);
+						} else {
+							Log.d("AREAGO","[GPS] No es AutoFADE");
+						}
 					break;
 				case SoundPoint.STATUS_PAUSED :
 					// Volvemos a ejecutar el audio.
@@ -226,15 +239,14 @@ public class SoundPoint extends Location {
 							this.mediaPlay(wifi);
 							break; 
 						case SoundPoint.STATUS_PLAYING :
-	//						float vol = (float) ((-1)*wifi.level)/100;
 							float x = (float) (90+wifi.level);
 							if (x<-1) x=0;
 							if (x>90) x=90;
-							float vol = x/90;
-					    	if (vol > 1.0) vol = (float) 1;
-					    	if (vol < 0) vol = (float) 0;
-					    	//Log.d("AREAGO","Change Volume : "+vol);
-							this.changeVolume(vol);
+							float volume = x/90;
+					    	if (volume > 1.0) volume = (float) 1;
+					    	else if (volume < 0) volume = (float) 0;
+					    	Log.d("AREAGO","Change Volume : "+volume);
+							this.changeVolume(volume);
 							break; 
 					}
 				} else if (this.type == SoundPoint.TYPE_TOGGLE) {
@@ -277,7 +289,7 @@ public class SoundPoint extends Location {
 		this.status=STATUS_PLAYING;
 	}
 	
-	private void changeVolume(float v) {
+	private void changeVolume(float dVolume) {
 		// escala de log10 de 1-10 -> volumen = 1-log([1-10])
 		// PRE: distancia <= radio
 		// volume = 1 -log(distancia*10/radio)
@@ -288,7 +300,11 @@ public class SoundPoint extends Location {
 		float v = (float) (1.0 - Math.log(d));*/
 		// Lo dejo en lineal
 //		float v = (float) this.distanceTo(l)/this.radius;
-		this.mp.setVolume(v,v);
+		//this.mp.setVolume(this.volume,this.volume);
+		Log.d("AREAGO","[Volumen] Cambio de volumen de "+this.volume+" A "+dVolume);
+		fadeVolume(fadeTime,dVolume);
+		this.volume=dVolume;
+		Log.d("AREAGO","[Audio] Cambiando volumen a :"+this.volume);
 		
 	}
 	
@@ -322,11 +338,11 @@ public class SoundPoint extends Location {
 	    	float x = (float) (90+wifi.level);
 			if (x<-1) x=0;
 			if (x>90) x=90;
-			float vol = x/90;
-	    	if (vol > 1.0) vol = (float) 1;
-	    	if (vol < 0) vol = (float) 0;
-	    	Log.d("AREAGO","Gestionamos el volumen a: " + vol);
-	    	this.changeVolume(vol);
+			volume = x/90;
+	    	if (volume > 1.0) volume = (float) 1;
+	    	if (volume < 0) volume = (float) 0;
+	    	Log.d("AREAGO","Gestionamos el volumen a: " + volume);
+	    	this.changeVolume(volume);
 	    }
 	    
 	    this.mp.start();
@@ -372,10 +388,10 @@ public class SoundPoint extends Location {
 	    	this.mp.setVolume(1.0f, 1.0f);
 	    } else {	
 		// autoFADE
-	    	float vol = (float) this.distanceTo(l)/this.radius;
-	    	if (vol > 1.0) vol = (float) 1;
-	    	if (vol < 0) vol = (float) 0;
-	    	this.changeVolume(vol);
+	    	float volume = (float) 1.0 - (float) this.distanceTo(l)/this.radius;
+	    	if (volume > 1.0) volume = (float) 1.0;
+	    	if (volume < 0) volume = (float) 0.0;
+	    	this.changeVolume(volume);
 	    }	
 	    	
 		this.mp.start();
@@ -394,9 +410,16 @@ public class SoundPoint extends Location {
 					arg0.release();
 					status = STATUS_STOPPED;
 					break;
+				case TYPE_PLAY_UNTIL :
+					Log.d("AREAGO","Se finalizó la reproducción de: " + arg0.getAudioSessionId());
+					arg0.stop();
+					arg0.release();
+					status = STATUS_STOPPED;
+					break;
 				case TYPE_PLAY_LOOP:
 					// TODO: DEBEMOS VOLVER A EJECUTAR O LO MARCAMOS ANTES COMO LOOP PARA QUE NO PARE?
 					Log.d("AREAGO","Se finalizó la reproducción de UN AUDIO LOOP: " + arg0.getAudioSessionId());
+					arg0.release();
 					arg0.start();
 					status = STATUS_PLAYING;
 				}						
@@ -432,7 +455,38 @@ public class SoundPoint extends Location {
 			status=STATUS_PAUSED;
 		}
 	}
+	
+	// De un valor V (el actual en this.volume) a un valor
+	//TODO: testear distintos tiempos para ver la reacción del audio..
+	//TODO: Gestionar la muerte del proceso en el stop del activity!!!
+	public void fadeVolume(int duration,float dVolume)
+	{
+	    vol = dVolume; // volumen final
+	    tVolume = this.volume; // volumen inicial
+	    float rVolume = vol - tVolume;
+	    float steps = (float) duration/increment; // numero de veces que hace el cambio en tantos milisegundos
+	    final float vIncrement = rVolume/steps; //sera positivo si es FadeIN o negativo si FadeOut
 
-
+	    new CountDownTimer(duration, increment)
+	    {
+	        public void onFinish() 
+	        {
+	        	try {
+	            mp.setVolume(vol, vol);
+	        	} catch (IllegalStateException e) {
+	        		e.printStackTrace();
+	        	}
+	        }
+	        public void onTick(long millisUntilFinished) 
+	        {
+	            tVolume += vIncrement;
+	            try {
+	            	mp.setVolume(tVolume, tVolume);
+	            } catch (IllegalStateException e) {
+	            	e.printStackTrace();
+	            }
+	        }
+	    }.start();
+	}
 
 }

@@ -99,6 +99,11 @@ public class MainActivity extends Activity {
         	// TODO: Crear dialogo para acceptar el servidor por defecto
         	SharedPreferences.Editor prefEditor = appPrefs.edit();
         	prefEditor.putString("editUrlServer", "http://www.xavierbalderas.com/areago/areago/listado");
+        	Intent i = new Intent("com.audiolab.areago.AreagoPreferences");
+    		startActivity(i);
+//    		i = getIntent();
+//    		finish();
+//    		startActivity(i);
         }
         		
         setTitle("AREAGO : Inicio");

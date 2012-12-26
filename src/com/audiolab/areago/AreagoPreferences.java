@@ -7,5 +7,9 @@ public class AreagoPreferences  extends PreferenceActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.xml.areagopreferences);
+		getWindow().setBackgroundDrawableResource(android.R.color.white);
+	}
+	public void onStop() {
+		super.onStop();
 	}
 }
