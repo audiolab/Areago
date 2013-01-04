@@ -55,13 +55,14 @@ public class MainActivity extends Activity {
 			httpConn.setAllowUserInteraction(false);
 			httpConn.setInstanceFollowRedirects(true);
 			httpConn.setRequestMethod("GET");
+			httpConn.setConnectTimeout(5000);
 			httpConn.connect();
 			response = httpConn.getResponseCode();
 			if (response == HttpURLConnection.HTTP_OK){
 					in = httpConn.getInputStream();
 			}
 		} catch (Exception ex) {
-			Log.d("Networking", ex.getLocalizedMessage());
+			Log.d("AREAGO", ex.getLocalizedMessage());
 			throw new IOException("Error connecting");
 		}
 		
@@ -276,12 +277,7 @@ public void onPause() {
     					try {
     							// TODO: Activar cuando esté en funcionamiento la web
     						Intent i = new Intent("com.audiolab.areago.ListActivityPaseos");
-    						String json = "";
-    						if (isConnected()) json = init_rutas();
-    						i.putExtra("json", json);
-    						// Las referencias de localización del sujeto
-    						//i.putExtra("lat", lat);
-    						//i.putExtra("lon", lon);
+    						if (isConnected()) i.putExtra("json", init_rutas());
     						dialog.dismiss();
     						startActivity(i);
     					} catch (Exception e) {
@@ -296,8 +292,9 @@ public void onPause() {
 		        			InputStream in = null;
 		        			try {
 		        				in = OpenHttpConnection(url);
+		        				Log.d("AREAGO","Abriendo conexión..");
 		        			} catch (Exception e) {
-		        				Log.d("Networking",e.getLocalizedMessage());
+		        				Log.d("AREAGO",e.getLocalizedMessage());
 		        				dialog.dismiss();
 		        				return str;
 		        			}
@@ -311,11 +308,13 @@ public void onPause() {
 		        					String readString = String.copyValueOf(inputBuffer,0,charRead);
 		        					str += readString;
 		        					inputBuffer = new char[BUFFER_SIZE];
+		        					
 		        				}
 		        				in.close();
 		        			} catch (IOException e) {
-		        				Log.d("Networking",e.getLocalizedMessage());
+		        				Log.d("AREAGO",e.getLocalizedMessage());
 		        				str = "";
+		        				dialog.dismiss();
 		        				return str;
 		        			}   			
 		        			

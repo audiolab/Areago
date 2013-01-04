@@ -7,7 +7,8 @@ public class AreagoPreferences  extends PreferenceActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.xml.areagopreferences);
-		getWindow().setBackgroundDrawableResource(android.R.color.white);
+		setTheme(R.style.android_Theme_WhiteTheme);
+		setTitle("Preferencias Servidor Areago");
 	}
 	public void onStop() {
 		super.onStop();

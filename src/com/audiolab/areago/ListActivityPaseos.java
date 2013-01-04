@@ -86,8 +86,8 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 		getPaseos();
 		
 		/// Cargamos paseos online (hemos cargado el archivo en el activity anterior)
-		String str = getIntent().getStringExtra("json");
-		getPaseos(str);
+		if (getIntent().hasExtra("json")) getPaseos(getIntent().getStringExtra("json"));
+
 		
 		// Creamos la lista de paseos recorriendo walks
 		
@@ -356,10 +356,7 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 	
 	public boolean isExternalStorageWritable() {
 	    String state = Environment.getExternalStorageState();
-	    if (Environment.MEDIA_MOUNTED.equals(state)) {
-	        Log.e("AREAGO", "Sistema correcto para escribir"+state);
-	        return true;
-	    }
+	    if (Environment.MEDIA_MOUNTED.equals(state)) return true;
 	    return false;
 	}
 	
@@ -441,6 +438,8 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 						 fold = new File(path_walk + "/"+ze.getName());
 					     if (!fold.isDirectory()) fold.mkdir();
 					 } else {
+						 //setMessage("Descargando archivo: "+ze.getName());
+						 
 						 OutputStream output = new FileOutputStream(path_walk+"/"+ze.getName());
 						 byte data[] = new byte[1024];
 						 long total = 0;

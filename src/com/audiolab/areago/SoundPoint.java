@@ -6,11 +6,12 @@ import java.util.List;
 import android.content.Context;
 import android.location.Location;
 import android.location.LocationManager;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.wifi.ScanResult;
 import android.os.CountDownTimer;
+import android.os.Vibrator;
 import android.util.Log;
-import android.widget.Toast;
 
 public class SoundPoint extends Location {
 	
@@ -27,8 +28,13 @@ public class SoundPoint extends Location {
 	public float volume=1;
 	public float vol;
 	public float tVolume;
-	public int increment=100;
+	public int increment=10;
 	public int fadeTime=500; // medio segundo de fade
+	public int old_status;
+	
+	//Vibraciones
+	private boolean vibrate=false;
+	private Vibrator vibrator;
 	
 	// TIPO DE PUNTOS TRADICIONALES
 	public static final int TYPE_PLAY_ONCE=0; // reproduce una vez el audio mientras esté en el radio
@@ -47,6 +53,7 @@ public class SoundPoint extends Location {
 	private static final int STATUS_PAUSED=3;
 	private static final int STATUS_ACTIVATE=4;
 	private static final int STATUS_DEACTIVATE=5;
+	private static final int STATUS_CHANGING_VOLUME=10;
 	
 	// INFO DE MEDIA PLAYER
 	private MediaPlayer mp;
@@ -91,6 +98,15 @@ public class SoundPoint extends Location {
 	
 	public int getType() {
 		return this.type;
+	}
+	
+	public void setVibrate(Vibrator v) {
+		this.vibrator = v;
+		this.vibrate = true;
+	}
+	
+	public void unsetVibrate() {
+		this.vibrate = false;
 	}
 
 	public String getFolder() {
@@ -155,6 +171,7 @@ public class SoundPoint extends Location {
 		if (distance<=this.radius){
 			Log.d("AREAGO","[****] Colisiona el punto"+this.id+" Estado reproducc: "+this.status);
 			switch (this.status) {
+				case SoundPoint.STATUS_PAUSED :
 				case SoundPoint.STATUS_STOPPED :
 					switch (this.type){
 						case SoundPoint.TYPE_PLAY_ONCE:
@@ -172,22 +189,17 @@ public class SoundPoint extends Location {
 					break;
 				case SoundPoint.STATUS_PLAYING :
 					// Seguimos reproduciendo
-					// TODO: cambia el volumen si es necesario..
-//						if(this.autofade) this.changeVolume(l);
-						if (this.autofade) {
-							float volume = (float) 1.0 - (float) this.distanceTo(l)/this.radius;
-							if (volume > 1.0) volume = (float) 1.0;
-							else if (volume < 0) volume = (float) 0.0;
-					    	Log.d("AREAGO","[GPS]["+this.soundFile+"]Change Volume : "+volume);
-					    	this.changeVolume(volume);
-						} else {
-							Log.d("AREAGO","[GPS] No es AutoFADE");
-						}
-					break;
-				case SoundPoint.STATUS_PAUSED :
-					// Volvemos a ejecutar el audio.
-					// REVISAR LA RAZON DE ESTE CASO ... posibilidad de 
-					//this.mediaPlay();
+//						if (this.autofade) {
+//							float volume = (float) 1.0 - (float) this.distanceTo(l)/this.radius;
+//							if (volume > 1.0) volume = (float) 1.0;
+//							else if (volume < 0) volume = (float) 0.0;
+//					    	Log.d("AREAGO","[GPS]["+this.soundFile+"]Change Volume : "+volume);
+//					    	this.changeVolume(volume);
+//						} else {
+//							this.changeVolume(1);
+//							Log.d("AREAGO","[GPS] No es AutoFADE");
+//						}
+						changeVolume(calculateVolumen(l));
 					break;
 				case SoundPoint.STATUS_ACTIVATE :
 					// La acción del trigger ya ha sido ejecutada
@@ -199,11 +211,7 @@ public class SoundPoint extends Location {
 					return this.destLayer;
 					//TODO: Deberíamos marcarla para que no se volviera a ejecutar???
 			}
-			// HABRÍA QUE MARCAR QUE ESTÁ DENTRO DEL CIRCULO?
-			//salido = false; // no ha salido del círculo
-			//return this.layer;
 		} else {
-			//Log.d("AREAGO","NO Colisiona el punto"+this.id);
 			switch (status) {
 				case SoundPoint.STATUS_STOPPED :
 					// SIGUE PARADO
@@ -216,9 +224,7 @@ public class SoundPoint extends Location {
 					// LO SEGUIMOS DEJANDO PAUSADO?
 					break;
 			}
-			this.played = false; // Si estamos fuera del radio ya podemos volver a darle para que suene al volver a entrar
-			// TODO: HABRÍA QUE MARCAR QUE ESTA FUERA DEL CIRCULO?
-			//return false;
+			this.played = false; 
 		}
 		return this.layer;
 	}
@@ -227,6 +233,7 @@ public class SoundPoint extends Location {
 	public int checkColision(List<ScanResult> results) {
 		// Revismaos puntos y si son de type WIFI comprobamos si alguno tiene el mismo ESSID
 		// Deberíamos ver si el wifi de este punto está o no..
+		//this.vibrator.vibrate(300);
 		for (ScanResult wifi : results) {
 			// Si está aquí dentro debermos ejecutar el audio o cambiar el volumen
 			//Log.d("AREAGO","Existe el punto: "+this.id+"con el ESSID: "+this.SSID+" - Con el Wifi: "+wifi.SSID);
@@ -234,19 +241,20 @@ public class SoundPoint extends Location {
 				//Log.d("AREAGO","Hay colision en: "+this.id+"con el ESSID: "+this.SSID);
 				if (this.type == SoundPoint.TYPE_WIFI_PLAY_LOOP) {
 					switch (this.status) {
+						case SoundPoint.STATUS_PAUSED :
 						case SoundPoint.STATUS_STOPPED :
-							//Log.d("AREAGO","Play");
 							this.mediaPlay(wifi);
 							break; 
 						case SoundPoint.STATUS_PLAYING :
-							float x = (float) (90+wifi.level);
-							if (x<-1) x=0;
-							if (x>90) x=90;
-							float volume = x/90;
-					    	if (volume > 1.0) volume = (float) 1;
-					    	else if (volume < 0) volume = (float) 0;
-					    	Log.d("AREAGO","Change Volume : "+volume);
-							this.changeVolume(volume);
+//							float x = (float) (90+wifi.level);
+//							if (x<-1) x=0;
+//							if (x>90) x=90;
+//							float volume = x/90;
+//					    	if (volume > 1.0) volume = (float) 1;
+//					    	else if (volume < 0) volume = (float) 0;
+//					    	Log.d("AREAGO","Change Volume : "+volume);
+//							this.changeVolume(volume);
+							this.changeVolume(calculateVolumen(wifi));
 							break; 
 					}
 				} else if (this.type == SoundPoint.TYPE_TOGGLE) {
@@ -274,9 +282,18 @@ public class SoundPoint extends Location {
 	}
 	
 	private void mediaStop(){
+		//this.changeVolume(0);
+//		while (this.status==SoundPoint.STATUS_CHANGING_VOLUME) {
+//			Log.d("AREAGO","Esperando a que finalice el cambio de volumen");
+//			android.os.SystemClock.sleep(100);
+//			
+//		}
+		this.mp.setOnCompletionListener(null);
 		this.mp.stop();
 		this.mp.release();
+		this.mp = null;
 		this.status=STATUS_STOPPED;
+		Log.d("AREAGO","Stopping: "+this.getSoundFile());
 	}
 	
 	private void pauseSoundFile() {
@@ -310,7 +327,9 @@ public class SoundPoint extends Location {
 	
 	private void mediaPlay(ScanResult wifi) {
 		this.mp = new MediaPlayer();
-		Log.d("AREAGO","Playing: "+this.folder + "/" + this.soundFile);
+		mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
+	    //this.changeVolume(calculateVolumen(wifi));
+		this.volume=0;
 		
 	    try {
 			this.mp.setDataSource(this.folder + "/" + this.soundFile);
@@ -327,8 +346,37 @@ public class SoundPoint extends Location {
 			e.printStackTrace();
 		}		
 	    
-	    if (!this.autofade) {
-	    	this.mp.setVolume(1.0f, 1.0f);
+
+	    
+	    //this.vibrator.vibrate(300);
+		//Log.d("AREAGO","A vibrar!!!");
+	    
+	    Log.d("AREAGO","Iniciamos reprod co vol: "+this.volume);
+	    
+	    this.mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+			public void onCompletion(MediaPlayer arg0) {
+				switch (type) {
+				case  SoundPoint.TYPE_WIFI_PLAY_LOOP:
+					Log.d("AREAGO","Se finalizó la reproducción de UN AUDIO LOOP: " + arg0.getAudioSessionId()+" con vol: "+volume);
+					arg0.start();
+					status = STATUS_PLAYING;
+					Log.d("AREAGO","Se vuelve a reproducir con este volume: "+volume);
+					break;
+				}						
+			}
+		});
+	    this.status=SoundPoint.STATUS_PLAYING;
+	    this.mp.start();
+	    //android.os.SystemClock.sleep(100);
+	    this.played=true;
+	    Log.d("AREAGO","Playing: "+this.folder + "/" + this.soundFile);
+	    this.changeVolume(calculateVolumen(wifi));
+	    Log.d("AREAGO","Despues reprod co vol: "+this.volume);
+	}
+	
+	private float calculateVolumen(ScanResult wifi) {
+		if (!this.autofade) {
+	    	return 1;
 	    } else {	
 	    	// autoFADE
 	    	// basandome en esto: http://stackoverflow.com/questions/8704186/android-scanresult-level-value
@@ -342,25 +390,8 @@ public class SoundPoint extends Location {
 	    	if (volume > 1.0) volume = (float) 1;
 	    	if (volume < 0) volume = (float) 0;
 	    	Log.d("AREAGO","Gestionamos el volumen a: " + volume);
-	    	this.changeVolume(volume);
+	    	return volume;
 	    }
-	    
-	    this.mp.start();
-		
-		this.status=SoundPoint.STATUS_PLAYING;
-		this.played=true;
-		
-		this.mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-			public void onCompletion(MediaPlayer arg0) {
-				switch (type) {
-				case  SoundPoint.TYPE_WIFI_PLAY_LOOP:
-					Log.d("AREAGO","Se finalizó la reproducción de UN AUDIO LOOP: " + arg0.getAudioSessionId());
-					arg0.start();
-					status = STATUS_PLAYING;
-					break;
-				}						
-			}
-		});
 	}
 	
 	private void mediaPlay(Location l){
@@ -381,52 +412,58 @@ public class SoundPoint extends Location {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}		
-		
-	    // Gestión de volumen!
-	    // autoFADE disabled
-	    if (!this.autofade) {
-	    	this.mp.setVolume(1.0f, 1.0f);
-	    } else {	
-		// autoFADE
-	    	float volume = (float) 1.0 - (float) this.distanceTo(l)/this.radius;
-	    	if (volume > 1.0) volume = (float) 1.0;
-	    	if (volume < 0) volume = (float) 0.0;
-	    	this.changeVolume(volume);
-	    }	
-	    	
+	    
+	    changeVolume(calculateVolumen(l));
+
+		this.status=SoundPoint.STATUS_PLAYING;
 		this.mp.start();
-		
-		this.status=STATUS_PLAYING;
-		this.played=true;
+		//this.vibrator.vibrate(300);
+		//Log.d("AREAGO","A vibrar!!!");
 		
 		this.mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
 			public void onCompletion(MediaPlayer arg0) {
-				// TODO CUANDO ACABA LO MARCAMOS ??
-				// GESTIONAMOS EL STOP DEL AUDIO EN LOOP A PARTIR DE COLISION, AL ACABAR SI ES LOOP LO VOVLEMOS A REPRODUCIR, SI NO, LO MARCAMOS COMO STOP.
 				switch (type) {
 				case TYPE_PLAY_ONCE :
 					Log.d("AREAGO","Se finalizó la reproducción de: " + arg0.getAudioSessionId());
-					arg0.stop();
+					//arg0.stop();
 					arg0.release();
 					status = STATUS_STOPPED;
+					played=true;
 					break;
 				case TYPE_PLAY_UNTIL :
 					Log.d("AREAGO","Se finalizó la reproducción de: " + arg0.getAudioSessionId());
-					arg0.stop();
+					//arg0.stop();
 					arg0.release();
 					status = STATUS_STOPPED;
+					played=true;
 					break;
 				case TYPE_PLAY_LOOP:
 					// TODO: DEBEMOS VOLVER A EJECUTAR O LO MARCAMOS ANTES COMO LOOP PARA QUE NO PARE?
 					Log.d("AREAGO","Se finalizó la reproducción de UN AUDIO LOOP: " + arg0.getAudioSessionId());
-					arg0.release();
+					//arg0.release();
 					arg0.start();
 					status = STATUS_PLAYING;
+					break;
 				}						
 			}
 		});
 	}
 	
+	private float calculateVolumen(Location l) {
+	    // Gestión de volumen!
+	    // autoFADE disabled
+	    if (!this.autofade) {
+	    	//this.mp.setVolume(1.0f, 1.0f);
+	    	return 1;
+	    } else {	
+		// autoFADE
+	    	float volume = (float) 1.0 - (float) this.distanceTo(l)/this.radius;
+	    	if (volume > 1.0) volume = (float) 1.0;
+	    	if (volume < 0) volume = (float) 0.0;
+	    	return volume;
+	    }	
+	    
+	}
 	
 	public void prepareSoundFile(){
 		this.mp = new MediaPlayer();
@@ -461,6 +498,9 @@ public class SoundPoint extends Location {
 	//TODO: Gestionar la muerte del proceso en el stop del activity!!!
 	public void fadeVolume(int duration,float dVolume)
 	{
+		Log.d("AREAGO","STATUS: "+this.status);
+		this.old_status = this.status;
+		this.status = SoundPoint.STATUS_CHANGING_VOLUME;
 	    vol = dVolume; // volumen final
 	    tVolume = this.volume; // volumen inicial
 	    float rVolume = vol - tVolume;
@@ -474,8 +514,16 @@ public class SoundPoint extends Location {
 	        	try {
 	            mp.setVolume(vol, vol);
 	        	} catch (IllegalStateException e) {
+	        		try {
+	        			mp.stop();
+	        			mp.release();
+	        			mp = null;
+	        		} catch (IllegalStateException ex) {
+	        			ex.printStackTrace();
+	        		}
 	        		e.printStackTrace();
 	        	}
+	        	status=old_status;
 	        }
 	        public void onTick(long millisUntilFinished) 
 	        {
@@ -483,7 +531,16 @@ public class SoundPoint extends Location {
 	            try {
 	            	mp.setVolume(tVolume, tVolume);
 	            } catch (IllegalStateException e) {
+	            	try {
+	        			mp.stop();
+	        			mp.release();
+	        			mp = null;
+	        		} catch (IllegalStateException ex) {
+	        			ex.printStackTrace();
+	        		} 
 	            	e.printStackTrace();
+	            } catch (NullPointerException nex) {
+	            	nex.printStackTrace();
 	            }
 	        }
 	    }.start();

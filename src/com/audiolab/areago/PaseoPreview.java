@@ -1,7 +1,9 @@
 package com.audiolab.areago;
 
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import android.app.Activity;
 import android.app.KeyguardManager;
@@ -9,23 +11,25 @@ import android.app.KeyguardManager.KeyguardLock;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.IntentFilter;
-import android.graphics.Bitmap;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.media.AudioManager;
 import android.net.wifi.WifiConfiguration;
-import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Vibrator;
 import android.util.Log;
+import android.view.View;
 import android.view.Window;
-import android.view.WindowManager;
 import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+
 
 public class PaseoPreview extends Activity  {
 	
@@ -35,21 +39,20 @@ public class PaseoPreview extends Activity  {
 	double[] nl = new double[2];
 
 	TextView status;
-	Vibrator v;
 	
 	//para el wifi
 	BroadcastReceiver receiver = null;
 	WifiConfiguration wifiConf;
 	WifiManager wifi;
+
+	ScheduledExecutorService exec = Executors.newScheduledThreadPool(1);
 	
-	//timers
-	private Timer timer;
-	private TimerTask updateTask = new TimerTask() {
-	    @Override
-	    public void run() {
-	      wifi.startScan();
-	    }
-	  };
+	final Runnable Scanning = new Runnable() {
+        public void run() {
+        	Log.d("AREAGO","En el Runnable..");
+            wifi.startScan();
+       }
+	};
 	
 	KeyguardManager  myKeyGuard;
 	KeyguardLock lock;
@@ -66,12 +69,11 @@ public class PaseoPreview extends Activity  {
 		//gestion bloqueo pantalla
 		myKeyGuard = (KeyguardManager)getSystemService(Context.KEYGUARD_SERVICE);
         lock = myKeyGuard.newKeyguardLock(KEYGUARD_SERVICE);
+		//Gestion de volumen con audiomanager
+        setVolumeControlStream(AudioManager.STREAM_MUSIC);
+    	Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         
-        v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-		
 		String JSONPoints = getIntent().getStringExtra("json");
-//		String lat = getIntent().getStringExtra("lat");
-//		String lon = getIntent().getStringExtra("lon");
 		
 		// Definimos paseo
 		walk = new Paseo(getIntent().getIntExtra("id", 0));
@@ -96,6 +98,11 @@ public class PaseoPreview extends Activity  {
 				"<div content='description' style='text-align:justify;'>"+walk.getDescription()+"</div>";
 		//((WebView)findViewById(R.id.webview)).loadData(html, "text/html; charset=UTF-8", null);
 		((WebView)findViewById(R.id.webview)).loadDataWithBaseURL("fake://not/needed", html, "text/html", "utf-8", "");
+
+	}
+	
+	public void onStart() {
+		super.onStart();
 		
     	locManager = (LocationManager) getSystemService(LOCATION_SERVICE);
     	locationListener = new PaseoLocationListener();
@@ -103,19 +110,18 @@ public class PaseoPreview extends Activity  {
     	Criteria crit = new Criteria();
     	crit.setAccuracy(Criteria.ACCURACY_FINE);
     	locManager.getLastKnownLocation(locManager.getBestProvider(crit, true));
-    	
+
     	//Vibraciones
-    	
-    	v.vibrate(300);
+    	//v.vibrate(300);
 		
     	//configure wifi
     	wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
     	if (receiver == null) receiver = new WiFiScanReceiver(this);
     	registerReceiver(receiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+		
+		exec.scheduleAtFixedRate(Scanning, 0, 5, TimeUnit.SECONDS);
     	
-		//configuramos el timer para los wifis
-		timer = new Timer();
-		timer.schedule(updateTask, 0, 3000);
+		
 	}
     	
 	public void onResume() {
@@ -133,18 +139,40 @@ public class PaseoPreview extends Activity  {
 	public void onPause() {
 		super.onPause();
 		//locManager.removeUpdates(locationListener); // TODO: Al volver a la pantalla de lista de paseo se debería parar... Y lo queremos así?
+		
+		this.walk.pause();
 		Log.d("AREAGO","onPause");
 	}
 	
 	public void onStop() {
+		exec.shutdownNow();
 		super.onStop();
 		this.walk.stop();
+		
+		try {
+			locManager.removeUpdates(locationListener);
+			((TextView)findViewById(R.id.status_gps)).setVisibility(View.VISIBLE);
+    		((TextView)findViewById(R.id.status_gps)).setText("Dispositivo GPS desactivado");
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		}
+		
+		
+//		while(updateTask.cancel()) {
+//			Log.d("AREAGO","Al cerrar la tarea muestra este valor es false");
+//			android.os.SystemClock.sleep(3000);
+//		}
+//		
+//		timer.cancel();
+//		int i = timer.purge();
+//		Log.d("AREAGO","El número de tareas matadas: "+i);
+		
 		try { 
 			unregisterReceiver(receiver); // TODO: Peta cuando no está ejecutandose el receiver y se quiere parar...
 		} catch (RuntimeException e) {
 			e.printStackTrace();
 		}
-		locManager.removeUpdates(locationListener);
+		
 		Log.d("AREAGO","onStop");
 	}
 	
@@ -160,9 +188,11 @@ public class PaseoPreview extends Activity  {
 	private class PaseoLocationListener implements LocationListener {
 	
     	public void onLocationChanged(Location location) {
-    		// TODO Auto-generated method stub
+    		// TODO Auto-generated method stub    	
+    		((TextView)findViewById(R.id.status_gps)).setVisibility(View.GONE);
     		if (location != null) {
     			((TextView)findViewById(R.id.gps)).setText("Layer: "+walk.getLayer()+" Posición: "+location.getLatitude()+"/"+location.getLongitude()+"/"+location.getAccuracy());
+    			((TextView)findViewById(R.id.status_gps)).setEnabled(false);
     			SoundPoint nl = new SoundPoint(location);
     			Log.d("AREAGO","Location changed");
     			
@@ -177,11 +207,15 @@ public class PaseoPreview extends Activity  {
     		// TODO Auto-generated method stub
     		((TextView)findViewById(R.id.gps)).setText(provider+" desconectado");
     		Log.d("AREAGO","GPS Disable");
+    		((TextView)findViewById(R.id.status_gps)).setVisibility(View.VISIBLE);
+    		((TextView)findViewById(R.id.status_gps)).setText("Dispositivo GPS desactivado");
     	}
 
     	public void onProviderEnabled(String provider) {
     		// TODO Auto-generated method stub
     		((TextView)findViewById(R.id.gps)).setText("GPS Conectado:"+provider);
+    		((TextView)findViewById(R.id.status_gps)).setVisibility(View.VISIBLE);
+    		((TextView)findViewById(R.id.status_gps)).setText("Dispositivo GPS activado");
     		Log.d("AREAGO","GPS Enabled");
     	}
 
@@ -192,11 +226,13 @@ public class PaseoPreview extends Activity  {
     		case android.location.LocationProvider.AVAILABLE:
     			st="Disponible";
     		case android.location.LocationProvider.OUT_OF_SERVICE:
-    			st="Desactivado";
+    			st="buscando satelites";
     		case android.location.LocationProvider.TEMPORARILY_UNAVAILABLE:
     			st="Temporalmente desactivado";
     		}
     		((TextView)findViewById(R.id.gps)).setText("GPS Status:"+st);
+    		((TextView)findViewById(R.id.status_gps)).setVisibility(View.VISIBLE);
+    		((TextView)findViewById(R.id.status_gps)).setText("Dispositivo GPS: "+st);
     		Log.d("AREAGO","Status"+st);
     	}
 	}

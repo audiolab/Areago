@@ -35,8 +35,9 @@ public class Paseo {
 	private boolean downlad=false; // necesita ser descargado?
 	private String JsonPoints; // Listado de puntos del mapa en Json Array
 	private ArrayList<SoundPoint> puntos = new ArrayList<SoundPoint>();
-	private Vibrator vibrator;
 	private int layer = 0; // por defecto el paseo se inicia en la layer 0
+	private Vibrator v;
+	
 	
 	// Creadoras
 	public Paseo(int id) {
@@ -55,10 +56,6 @@ public class Paseo {
 	
 	public void setExcerpt(String e) {
 		this.excerpt = e;
-	}
-	
-	public void setVibrator(Vibrator v) {
-		this.vibrator = v;
 	}
 	
 	public void setIdioma(String lan) {
@@ -107,6 +104,10 @@ public class Paseo {
 	
 	public void setBitmap(Bitmap bitmap) {
 		this.img = bitmap;
+	}
+	
+	public void setVibrator(Vibrator v) {
+		this.v = v;
 	}
 	
 	// Consultoras
@@ -174,6 +175,14 @@ public class Paseo {
 	public void stop() {
 		for (int i = 0; i<this.puntos.size(); i++) {
 			this.puntos.get(i).stopSoundFile();
+			Log.d("AREAGO","Cerrando punto "+i);
+		}
+	}
+	
+	public void pause() {
+		for (int i=0; i<this.puntos.size(); i++) {
+			this.puntos.get(i).pausePlaying();
+			Log.d("AREAGO","Pausando punto "+i);
 		}
 	}
 	
@@ -190,32 +199,47 @@ public class Paseo {
 			
 		
 			for (int i = 0; i<features.length();i++) {
+				
+				SoundPoint p = new SoundPoint(LocationManager.GPS_PROVIDER);
+				
 				// Cargamos cada uno de los obj con los puntos
 				JSONObject jO = features.getJSONObject(i);
 				JSONObject properties = jO.getJSONObject("properties");
-				JSONObject geometry = jO.getJSONObject("geometry");
-				//JSONObject geo_prop = geometry.getJSONObject("properties"); // No usamos para nada??
-				JSONArray geo_coord = geometry.getJSONArray("coordinates");
-
-				//Paseo walk = new Paseo(jObject.getInt("id"),jObject.getString("name"),jObject.getString("description"));
-				// Me esto inventado el provider...
-				SoundPoint p = new SoundPoint(LocationManager.GPS_PROVIDER);
-				if (!geo_coord.isNull(1)) p.setLatitude(geo_coord.getDouble(1)); // TODO: No estoy seguro si el primer valor es LAT o LON...
-				if (!geo_coord.isNull(0)) p.setLongitude(geo_coord.getDouble(0));
-				if (geometry.has("radius")) p.setRadius((float) geometry.getDouble("radius"));
-				if (properties.has("file")) p.setSoundFile(properties.getString("file"));
+				
 				if (properties.has("type")) p.setType(properties.getInt("type")); // Dentro de properties
-				if (properties.has("essid")) p.setEssid(properties.getString("essid")); // TODO: Será obligatorio tener ESSID?? aunque sea ""
-				if (properties.has("autofade")) {p.setAutofade(properties.getBoolean("autofade"));} else {p.setAutofade(true);} // por defecto le dejo activado el autofade..
 				if (properties.has("layer")) {p.setLayer(properties.getInt("layer")); } else {p.setLayer(0);} // por defecto en la 0
-				if (properties.has("destLayer")) {p.setChangeToLayer(properties.getInt("destLayer")); } else {p.setChangeToLayer(0);} // por defecto dirige a la 0
-				// TODO: Hacer una variable global en sharedPreferences para guarda el lugar de descarga..
-				p.setFolder("/mnt/sdcard/Areago/"+this.getId()); // En JSON no nos define el ID del paseo? si
+				if (properties.has("vibrate")) {p.setVibrate(this.v);} else {p.unsetVibrate();}
+				
+				
+				if (p.getType()==SoundPoint.TYPE_TOGGLE) { 
+					if (properties.has("destLayer")) {p.setChangeToLayer(properties.getInt("destLayer")); } else {p.setChangeToLayer(0);} // por defecto dirige a la 0
+				}
+				
+				//Checkeo del audio/fade/.. para tipos que no sean toggle
+				if (p.getType()!=SoundPoint.TYPE_TOGGLE) {
+					if (properties.has("autofade")) {p.setAutofade(properties.getBoolean("autofade"));} else {p.setAutofade(true);} // por defecto le dejo activado el autofade..
+					if (properties.has("file")) p.setSoundFile(properties.getString("file"));
+					// TODO: Hacer una variable global en sharedPreferences para guarda el lugar de descarga..
+					p.setFolder("/mnt/sdcard/Areago/"+this.getId());
+				}
+				
+				// Geometria solo cuando es tipo GPS o Toggle..
+				if (p.getType()!=SoundPoint.TYPE_WIFI_PLAY_LOOP) {
+					JSONObject geometry = jO.getJSONObject("geometry");
+					JSONArray geo_coord = geometry.getJSONArray("coordinates");
+					if (!geo_coord.isNull(1)) p.setLatitude(geo_coord.getDouble(1));
+					if (!geo_coord.isNull(0)) p.setLongitude(geo_coord.getDouble(0));
+					if (geometry.has("radius")) p.setRadius((float) geometry.getDouble("radius"));
+				}
+				
+				if (p.getType()==SoundPoint.TYPE_WIFI_PLAY_LOOP) {
+					if (properties.has("essid")) p.setEssid(properties.getString("essid")); // TODO: Será obligatorio tener ESSID?? aunque sea ""
+				}
+
 				this.puntos.add(p);
 			} 
 		
 		} catch (JSONException e) {
-			// TODO Auto-generated catch block
 			//e.printStackTrace();
 			Log.d("AREAGO","Error al cargar los puntos del paseo: "+this.getTitle()+" @ "+str);
 		}
