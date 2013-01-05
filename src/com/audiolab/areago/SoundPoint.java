@@ -357,10 +357,14 @@ public class SoundPoint extends Location {
 			public void onCompletion(MediaPlayer arg0) {
 				switch (type) {
 				case  SoundPoint.TYPE_WIFI_PLAY_LOOP:
-					Log.d("AREAGO","Se finalizó la reproducción de UN AUDIO LOOP: " + arg0.getAudioSessionId()+" con vol: "+volume);
-					arg0.start();
-					status = STATUS_PLAYING;
-					Log.d("AREAGO","Se vuelve a reproducir con este volume: "+volume);
+					//while (status==SoundPoint.STATUS_CHANGING_VOLUME) { Log.d("AREAGO","Esperando a que se cambie el vol.. en status"+status);}
+					if ( status == SoundPoint.STATUS_PLAYING ) { 
+						Log.d("AREAGO","[WIFI] Se finalizó la reproducción de UN AUDIO LOOP: " + arg0.getAudioSessionId()+" con vol: "+volume+" status:"+status);
+						arg0.start(); 
+					} else {
+						Log.d("AREAGO","XXXXX [WIFI] Se finalizó la reproducción de UN AUDIO LOOP: " + arg0.getAudioSessionId()+" con vol: "+volume+" status:"+status);
+						arg0.release();
+					}
 					break;
 				}						
 			}
@@ -422,6 +426,8 @@ public class SoundPoint extends Location {
 		
 		this.mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
 			public void onCompletion(MediaPlayer arg0) {
+				//while (status==SoundPoint.STATUS_CHANGING_VOLUME) {}
+				if (status==SoundPoint.STATUS_PLAYING) {
 				switch (type) {
 				case TYPE_PLAY_ONCE :
 					Log.d("AREAGO","Se finalizó la reproducción de: " + arg0.getAudioSessionId());
@@ -445,6 +451,11 @@ public class SoundPoint extends Location {
 					status = STATUS_PLAYING;
 					break;
 				}						
+				} else {
+					arg0.release();
+					status = SoundPoint.STATUS_STOPPED;
+					played=true;
+				}
 			}
 		});
 	}
@@ -487,7 +498,7 @@ public class SoundPoint extends Location {
 	}
 	
 	public void pausePlaying(){
-		if (status==STATUS_PLAYING){
+		if (this.mp != null && this.mp.isPlaying()){
 			this.mp.pause();
 			status=STATUS_PAUSED;
 		}
@@ -500,7 +511,7 @@ public class SoundPoint extends Location {
 	{
 		Log.d("AREAGO","STATUS: "+this.status);
 		this.old_status = this.status;
-		this.status = SoundPoint.STATUS_CHANGING_VOLUME;
+		//this.status = SoundPoint.STATUS_CHANGING_VOLUME;
 	    vol = dVolume; // volumen final
 	    tVolume = this.volume; // volumen inicial
 	    float rVolume = vol - tVolume;
@@ -512,7 +523,7 @@ public class SoundPoint extends Location {
 	        public void onFinish() 
 	        {
 	        	try {
-	            mp.setVolume(vol, vol);
+	        		if (mp.isPlaying()) mp.setVolume(vol, vol);
 	        	} catch (IllegalStateException e) {
 	        		try {
 	        			mp.stop();
@@ -529,7 +540,7 @@ public class SoundPoint extends Location {
 	        {
 	            tVolume += vIncrement;
 	            try {
-	            	mp.setVolume(tVolume, tVolume);
+	            	if (mp.isPlaying()) mp.setVolume(tVolume, tVolume);
 	            } catch (IllegalStateException e) {
 	            	try {
 	        			mp.stop();

@@ -45,7 +45,7 @@ public class PaseoPreview extends Activity  {
 	WifiConfiguration wifiConf;
 	WifiManager wifi;
 
-	ScheduledExecutorService exec = Executors.newScheduledThreadPool(1);
+	ScheduledExecutorService exec;
 	
 	final Runnable Scanning = new Runnable() {
         public void run() {
@@ -119,9 +119,6 @@ public class PaseoPreview extends Activity  {
     	if (receiver == null) receiver = new WiFiScanReceiver(this);
     	registerReceiver(receiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
 		
-		exec.scheduleAtFixedRate(Scanning, 0, 5, TimeUnit.SECONDS);
-    	
-		
 	}
     	
 	public void onResume() {
@@ -134,18 +131,22 @@ public class PaseoPreview extends Activity  {
 			receiver = new WiFiScanReceiver(this);
 			registerReceiver(receiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
 		}
+		
+		exec = Executors.newScheduledThreadPool(1);
+		exec.scheduleAtFixedRate(Scanning, 0, 5, TimeUnit.SECONDS);
+
 	}
 
 	public void onPause() {
 		super.onPause();
 		//locManager.removeUpdates(locationListener); // TODO: Al volver a la pantalla de lista de paseo se debería parar... Y lo queremos así?
-		
+		while (!exec.isShutdown()) { exec.shutdownNow(); }
 		this.walk.pause();
 		Log.d("AREAGO","onPause");
 	}
 	
 	public void onStop() {
-		exec.shutdownNow();
+		
 		super.onStop();
 		this.walk.stop();
 		
@@ -189,10 +190,10 @@ public class PaseoPreview extends Activity  {
 	
     	public void onLocationChanged(Location location) {
     		// TODO Auto-generated method stub    	
-    		((TextView)findViewById(R.id.status_gps)).setVisibility(View.GONE);
     		if (location != null) {
     			((TextView)findViewById(R.id.gps)).setText("Layer: "+walk.getLayer()+" Posición: "+location.getLatitude()+"/"+location.getLongitude()+"/"+location.getAccuracy());
-    			((TextView)findViewById(R.id.status_gps)).setEnabled(false);
+//    			((TextView)findViewById(R.id.status_gps)).setEnabled(false);
+        		((TextView)findViewById(R.id.status_gps)).setVisibility(View.GONE);
     			SoundPoint nl = new SoundPoint(location);
     			Log.d("AREAGO","Location changed");
     			
@@ -207,15 +208,15 @@ public class PaseoPreview extends Activity  {
     		// TODO Auto-generated method stub
     		((TextView)findViewById(R.id.gps)).setText(provider+" desconectado");
     		Log.d("AREAGO","GPS Disable");
-    		((TextView)findViewById(R.id.status_gps)).setVisibility(View.VISIBLE);
     		((TextView)findViewById(R.id.status_gps)).setText("Dispositivo GPS desactivado");
+    		((TextView)findViewById(R.id.status_gps)).setVisibility(View.VISIBLE);
     	}
 
     	public void onProviderEnabled(String provider) {
     		// TODO Auto-generated method stub
     		((TextView)findViewById(R.id.gps)).setText("GPS Conectado:"+provider);
-    		((TextView)findViewById(R.id.status_gps)).setVisibility(View.VISIBLE);
     		((TextView)findViewById(R.id.status_gps)).setText("Dispositivo GPS activado");
+    		((TextView)findViewById(R.id.status_gps)).setVisibility(View.VISIBLE);
     		Log.d("AREAGO","GPS Enabled");
     	}
 
@@ -230,9 +231,9 @@ public class PaseoPreview extends Activity  {
     		case android.location.LocationProvider.TEMPORARILY_UNAVAILABLE:
     			st="Temporalmente desactivado";
     		}
-    		((TextView)findViewById(R.id.gps)).setText("GPS Status:"+st);
-    		((TextView)findViewById(R.id.status_gps)).setVisibility(View.VISIBLE);
+    		((TextView)findViewById(R.id.gps)).setText("GPS Status:"+st);    		
     		((TextView)findViewById(R.id.status_gps)).setText("Dispositivo GPS: "+st);
+    		((TextView)findViewById(R.id.status_gps)).setVisibility(View.VISIBLE);
     		Log.d("AREAGO","Status"+st);
     	}
 	}
