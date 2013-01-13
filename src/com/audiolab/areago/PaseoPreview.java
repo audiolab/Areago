@@ -98,11 +98,15 @@ public class PaseoPreview extends Activity  {
 				"<div content='description' style='text-align:justify;'>"+walk.getDescription()+"</div>";
 		//((WebView)findViewById(R.id.webview)).loadData(html, "text/html; charset=UTF-8", null);
 		((WebView)findViewById(R.id.webview)).loadDataWithBaseURL("fake://not/needed", html, "text/html", "utf-8", "");
+		
+		Log.d("AREAGO","onCreate");
 
 	}
 	
 	public void onStart() {
 		super.onStart();
+		
+		Log.d("AREAGO","onStart");
 		
     	locManager = (LocationManager) getSystemService(LOCATION_SERVICE);
     	locationListener = new PaseoLocationListener();
@@ -124,6 +128,9 @@ public class PaseoPreview extends Activity  {
 	public void onResume() {
 
 		super.onResume();
+		
+		Log.d("AREAGO","onResume");
+		
 		locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
 		lock.disableKeyguard();
 		((TextView)findViewById(R.id.gps)).setText("Layer: "+walk.getLayer());
@@ -132,24 +139,30 @@ public class PaseoPreview extends Activity  {
 			registerReceiver(receiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
 		}
 		
-		exec = Executors.newScheduledThreadPool(1);
-		exec.scheduleAtFixedRate(Scanning, 0, 5, TimeUnit.SECONDS);
+		if (exec == null ) {
+			exec = Executors.newScheduledThreadPool(1);
+			exec.scheduleAtFixedRate(Scanning, 0, 5, TimeUnit.SECONDS);
+		}
+
 
 	}
 
 	public void onPause() {
 		super.onPause();
 		//locManager.removeUpdates(locationListener); // TODO: Al volver a la pantalla de lista de paseo se debería parar... Y lo queremos así?
-		while (!exec.isShutdown()) { exec.shutdownNow(); }
-		this.walk.pause();
+//		while (!exec.isShutdown()) { exec.shutdownNow(); }
+//		this.walk.pause();
 		Log.d("AREAGO","onPause");
 	}
 	
 	public void onStop() {
 		
 		super.onStop();
-		this.walk.stop();
 		
+		while (!exec.isShutdown()) { exec.shutdownNow(); }
+		this.walk.pause();
+		
+		this.walk.stop();
 		try {
 			locManager.removeUpdates(locationListener);
 			((TextView)findViewById(R.id.status_gps)).setVisibility(View.VISIBLE);
@@ -179,6 +192,7 @@ public class PaseoPreview extends Activity  {
 	
 	public void onDestroy() {
 		super.onDestroy();
+		while (!exec.isShutdown()) { exec.shutdownNow(); }
 //		this.walk.stop();
 //		unregisterReceiver(receiver);
 //		locManager.removeUpdates(locationListener);

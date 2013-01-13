@@ -94,19 +94,23 @@ public class MainActivity extends Activity {
         
 
         
-        url = appPrefs.getString("editUrlServer", "");
-        if ( url == "") {
-        	Toast.makeText(getBaseContext(),"No está configurado el servidor de descarga de paseos. Configuramos con el servidor por defecto.",Toast.LENGTH_LONG).show();
-        	// TODO: Crear dialogo para acceptar el servidor por defecto
+        
+        if (!appPrefs.contains("editUrlServer")) {
         	SharedPreferences.Editor prefEditor = appPrefs.edit();
         	prefEditor.putString("editUrlServer", "http://www.xavierbalderas.com/areago/areago/listado");
-        	Intent i = new Intent("com.audiolab.areago.AreagoPreferences");
-    		startActivity(i);
+        	prefEditor.commit();
+        	// TODO: No me gusta como se visualiza la actividad.. la inserto a mano de momento hasta mejorar esta opción.
+//        	Toast.makeText(getBaseContext(),"No está configurado el servidor de descarga de paseos. Configuramos con el servidor por defecto.",Toast.LENGTH_LONG).show();
+//        	Intent i = new Intent("com.audiolab.areago.AreagoPreferences");
+//    		startActivity(i);
+        	
+        	
 //    		i = getIntent();
 //    		finish();
 //    		startActivity(i);
         }
-        		
+        url = appPrefs.getString("editUrlServer", "");
+        
         setTitle("AREAGO : Inicio");
 
         //Wireless
@@ -335,11 +339,11 @@ public void onPause() {
 		// TODO Auto-generated method stub
 	    // Handle item selection
 	    switch (item.getItemId()) {
-	    	case R.id.preferences:
-	    		//Toast.makeText(this,"En construcción..",Toast.LENGTH_LONG).show();
-	    		Intent i = new Intent("com.audiolab.areago.AreagoPreferences");
-	    		startActivity(i);
-	    		return true;
+//	    	case R.id.preferences:
+//	    		//Toast.makeText(this,"En construcción..",Toast.LENGTH_LONG).show();
+//	    		Intent i = new Intent("com.audiolab.areago.AreagoPreferences");
+//	    		startActivity(i);
+//	    		return true;
 	    	case R.id.exit:
 	    		System.exit(0);
 	    		return true;

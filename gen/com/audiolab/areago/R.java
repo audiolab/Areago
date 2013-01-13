@@ -30,7 +30,7 @@ public final class R {
     public static final class id {
         public static final int cabecera=0x7f0a0002;
         public static final int descripcion=0x7f0a000d;
-        public static final int exit=0x7f0a0012;
+        public static final int exit=0x7f0a0011;
         public static final int gps=0x7f0a0007;
         public static final int horizontalScrollView1=0x7f0a0008;
         public static final int idioma=0x7f0a0010;
@@ -39,7 +39,6 @@ public final class R {
         public static final int layout_general=0x7f0a0009;
         public static final int lbldescripcion=0x7f0a000c;
         public static final int lbltitulo=0x7f0a000a;
-        public static final int preferences=0x7f0a0011;
         public static final int scrollView1=0x7f0a0001;
         public static final int status_gps=0x7f0a0005;
         public static final int titulo=0x7f0a000b;
