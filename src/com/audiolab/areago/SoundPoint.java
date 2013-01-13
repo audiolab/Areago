@@ -533,6 +533,8 @@ public class SoundPoint extends Location {
 	        			ex.printStackTrace();
 	        		}
 	        		e.printStackTrace();
+	        	} catch (NullPointerException io) {
+	        		io.printStackTrace();
 	        	}
 	        	status=old_status;
 	        }

@@ -61,6 +61,7 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 	View vClicked;
 	
 	public String PATH_PASEOS;
+	public String DOWNLOAD_URL = "http://www.xavierbalderas.com/areago/areago/descarga/";
 	
 	@Override
 	public void onCreate (Bundle savedInstanceState) {
@@ -69,7 +70,7 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, 
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		setContentView(R.layout.scroll_walks);
-		setTitle("AREAGO : Paseos");
+		setTitle(getString(R.string.title_list_paseos));
 
 		try {
 			or = Environment.getExternalStorageDirectory();
@@ -188,10 +189,10 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 
 				
 				if (!p.isDownload()) {
-					tinfo.setText("Descarga disponible");
+					tinfo.setText(getString(R.string.descarga_disponible));
 					rl.addView(tinfo,pinfo);
 				} else if (!p.isUpdate()) { 
-					tinfo.setText("Actualización disponible");
+					tinfo.setText(getString(R.string.actualizacion_disponible));
 					rl.addView(tinfo,pinfo);
 				}
 
@@ -251,7 +252,7 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
         if (!fold.isDirectory()) fold.mkdir(); // La primera vez que se entra no hay directorio creado
         File[] fpaseos = fold.listFiles();
                 
-        if (fpaseos.length == 0) Toast.makeText(this,"No hay paseos en memoria",Toast.LENGTH_LONG).show();
+        if (fpaseos.length == 0) Toast.makeText(this,getString(R.string.error_no_hay_paseos_memoria),Toast.LENGTH_LONG).show();
         
         for (int i = 0; i<fpaseos.length; i++) {
         	Writer writer = new StringWriter();
@@ -316,7 +317,7 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 		
 		// Si no existe en memoria lo descargamos
 		if (!isExternalStorageWritable()) {
-			Toast.makeText(this,"No se puede escribir en la tarjeta",Toast.LENGTH_LONG).show();
+			Toast.makeText(this,getString(R.string.error_no_escribir_tarjeta),Toast.LENGTH_LONG).show();
 			return;
 		}
 		
@@ -376,7 +377,7 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 	
 	// Gestion del progress bar
 	private void startDownload() {
-        String url = "http://www.xavierbalderas.com/areago/areago/descarga/"+vClicked.getId();
+        String url = DOWNLOAD_URL+vClicked.getId();
         new DownloadFileAsync().execute(url);
     }
     @Override
@@ -384,7 +385,7 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
         switch (id) {
 		case DIALOG_DOWNLOAD_PROGRESS:
 			mProgressDialog = new ProgressDialog(this);
-			mProgressDialog.setMessage("Descargando archivos paseo...");
+			mProgressDialog.setMessage(getString(R.string.proceso_descargando_paseo));
 			mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 			mProgressDialog.setCancelable(true);
 			mProgressDialog.show();

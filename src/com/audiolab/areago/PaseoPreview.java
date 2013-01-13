@@ -239,14 +239,14 @@ public class PaseoPreview extends Activity  {
     		String st = "";
     		switch (status) {
     		case android.location.LocationProvider.AVAILABLE:
-    			st="Disponible";
+    			st=getString(R.string.gps_disponible);
     		case android.location.LocationProvider.OUT_OF_SERVICE:
-    			st="buscando satelites";
+    			st=getString(R.string.gps_no_disponible);
     		case android.location.LocationProvider.TEMPORARILY_UNAVAILABLE:
-    			st="Temporalmente desactivado";
+    			st=getString(R.string.gps_temporalmente_no_disponible);
     		}
     		((TextView)findViewById(R.id.gps)).setText("GPS Status:"+st);    		
-    		((TextView)findViewById(R.id.status_gps)).setText("Dispositivo GPS: "+st);
+    		((TextView)findViewById(R.id.status_gps)).setText(getString(R.string.dipositivo_gps)+st);
     		((TextView)findViewById(R.id.status_gps)).setVisibility(View.VISIBLE);
     		Log.d("AREAGO","Status"+st);
     	}

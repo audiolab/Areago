@@ -225,8 +225,8 @@ public class MainActivity extends Activity {
 		builder = new AlertDialog.Builder(this);
 		switch(id) {
 		case 0: // GPS
-			builder.setMessage("Inicie el GPS para arrancar AREAGO")
-	        .setPositiveButton("Configurar", new DialogInterface.OnClickListener() {
+			builder.setMessage(getString(R.string.error_gps));
+	        builder.setPositiveButton(getString(R.string.configurar), new DialogInterface.OnClickListener() {
 	            public void onClick(DialogInterface dialog, int id) {
 	            	startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
 	            	Intent i = getIntent();
@@ -236,8 +236,8 @@ public class MainActivity extends Activity {
 	        });
 			break;
 		case 1: // Wifi
-			builder.setMessage("Inicie el Wifi para arrancar AREAGO")
-	        .setPositiveButton("Configurar", new DialogInterface.OnClickListener() {
+			builder.setMessage(R.string.error_wifi)
+	        .setPositiveButton(getString(R.string.configurar), new DialogInterface.OnClickListener() {
 	            public void onClick(DialogInterface dialog, int id) {
 	            	startActivity(new Intent(android.provider.Settings.ACTION_WIFI_SETTINGS));
 	            	Intent i = getIntent();
@@ -247,8 +247,8 @@ public class MainActivity extends Activity {
 	        });
 			break;
 		case 2: // Storage
-			builder.setMessage("Comprueba el acceso a su tarjeta de memoria")
-	        .setPositiveButton("Configurar", new DialogInterface.OnClickListener() {
+			builder.setMessage(R.string.error_no_escribir_tarjeta)
+	        .setPositiveButton(getString(R.string.configurar), new DialogInterface.OnClickListener() {
 	            public void onClick(DialogInterface dialog, int id) {
 	            	startActivity(new Intent(android.provider.Settings.ACTION_MEMORY_CARD_SETTINGS));
 	            	Intent i = getIntent();
