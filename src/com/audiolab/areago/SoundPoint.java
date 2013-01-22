@@ -328,8 +328,9 @@ public class SoundPoint extends Location {
 	private void mediaPlay(ScanResult wifi) {
 		this.mp = new MediaPlayer();
 		mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
-	    //this.changeVolume(calculateVolumen(wifi));
 		this.volume=0;
+	    //this.changeVolume(calculateVolumen(wifi));
+		
 		
 	    try {
 			this.mp.setDataSource(this.folder + "/" + this.soundFile);
@@ -369,6 +370,7 @@ public class SoundPoint extends Location {
 				}						
 			}
 		});
+	    
 	    this.status=SoundPoint.STATUS_PLAYING;
 	    this.mp.start();
 	    //android.os.SystemClock.sleep(100);
@@ -400,6 +402,9 @@ public class SoundPoint extends Location {
 	
 	private void mediaPlay(Location l){
 		this.mp = new MediaPlayer();
+		mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
+		this.volume=0;
+		
 		Log.d("AREAGO","Playing: "+this.folder + "/" + this.soundFile);
 		
 	    try {
@@ -417,38 +422,31 @@ public class SoundPoint extends Location {
 			e.printStackTrace();
 		}		
 	    
-	    changeVolume(calculateVolumen(l));
-
-		this.status=SoundPoint.STATUS_PLAYING;
-		this.mp.start();
-		//this.vibrator.vibrate(300);
-		//Log.d("AREAGO","A vibrar!!!");
-		
-		this.mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+	    this.mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
 			public void onCompletion(MediaPlayer arg0) {
 				//while (status==SoundPoint.STATUS_CHANGING_VOLUME) {}
 				if (status==SoundPoint.STATUS_PLAYING) {
 				switch (type) {
-				case TYPE_PLAY_ONCE :
+				case SoundPoint.TYPE_PLAY_ONCE :
 					Log.d("AREAGO","Se finalizó la reproducción de: " + arg0.getAudioSessionId());
 					//arg0.stop();
 					arg0.release();
-					status = STATUS_STOPPED;
+					status = SoundPoint.STATUS_STOPPED;
 					played=true;
 					break;
-				case TYPE_PLAY_UNTIL :
+				case SoundPoint.TYPE_PLAY_UNTIL :
 					Log.d("AREAGO","Se finalizó la reproducción de: " + arg0.getAudioSessionId());
 					//arg0.stop();
 					arg0.release();
-					status = STATUS_STOPPED;
+					status = SoundPoint.STATUS_STOPPED;
 					played=true;
 					break;
-				case TYPE_PLAY_LOOP:
+				case SoundPoint.TYPE_PLAY_LOOP:
 					// TODO: DEBEMOS VOLVER A EJECUTAR O LO MARCAMOS ANTES COMO LOOP PARA QUE NO PARE?
 					Log.d("AREAGO","Se finalizó la reproducción de UN AUDIO LOOP: " + arg0.getAudioSessionId());
 					//arg0.release();
 					arg0.start();
-					status = STATUS_PLAYING;
+					status = SoundPoint.STATUS_PLAYING;
 					break;
 				}						
 				} else {
@@ -458,6 +456,18 @@ public class SoundPoint extends Location {
 				}
 			}
 		});
+	    
+	    
+
+	    this.status=SoundPoint.STATUS_PLAYING;
+	    this.mp.start();
+		changeVolume(calculateVolumen(l));
+	    this.played=true;
+
+		//this.vibrator.vibrate(300);
+		//Log.d("AREAGO","A vibrar!!!");
+		
+		
 	}
 	
 	private float calculateVolumen(Location l) {
