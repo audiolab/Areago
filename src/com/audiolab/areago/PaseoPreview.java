@@ -240,12 +240,20 @@ public class PaseoPreview extends Activity  {
     		switch (status) {
     		case android.location.LocationProvider.AVAILABLE:
     			st=getString(R.string.gps_disponible);
+    			break;
     		case android.location.LocationProvider.OUT_OF_SERVICE:
     			st=getString(R.string.gps_no_disponible);
+    			walk.pause();
+    			Log.d("AREAGO","Pausamos el paseo por fuera de servicio");
+    			break;
     		case android.location.LocationProvider.TEMPORARILY_UNAVAILABLE:
     			st=getString(R.string.gps_temporalmente_no_disponible);
+    			walk.pause();
+    			Log.d("AREAGO","Pausamos el paseo por temporalmente no disponible");
+    			break;
     		}
-    		((TextView)findViewById(R.id.gps)).setText("GPS Status:"+st);    		
+    		((TextView)findViewById(R.id.gps)).setText("GPS Status:"+st);
+    		Log.d("AREAGO","GPS Status: "+st);
     		((TextView)findViewById(R.id.status_gps)).setText(getString(R.string.dipositivo_gps)+st);
     		((TextView)findViewById(R.id.status_gps)).setVisibility(View.VISIBLE);
     		Log.d("AREAGO","Status"+st);
