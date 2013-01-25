@@ -175,7 +175,7 @@ public class Paseo {
 	public void stop() {
 		for (int i = 0; i<this.puntos.size(); i++) {
 			this.puntos.get(i).stopSoundFile();
-			Log.d("AREAGO","Cerrando punto "+i);
+			Log.d("AREAGO","Parando punto "+i);
 		}
 	}
 	
@@ -277,8 +277,8 @@ public class Paseo {
 	}
 	
 	public boolean checkLayer(int l){
-		// TODO: Deberíamos dar como cierto cuando decidamos que tipo de capa es la Comodín, de momento no hay comodín
-		if (l==this.layer) return true;
+		// Si es la capa actual o es 0 se ejecuta
+		if (l==this.layer || l==0) return true;
 		return false;
 	}
 	

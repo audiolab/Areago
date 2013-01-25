@@ -49,7 +49,7 @@ public class PaseoPreview extends Activity  {
 	
 	final Runnable Scanning = new Runnable() {
         public void run() {
-        	Log.d("AREAGO","En el Runnable..");
+        	//Log.d("AREAGO","En el Runnable..");
             wifi.startScan();
        }
 	};

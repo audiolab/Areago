@@ -167,39 +167,24 @@ public class SoundPoint extends Location {
 	// Devuelve la misma capa si no hay cambio o devuelve la capa de destino si hay un toogle de cambio de capa
 	public int checkColision(Location l){
 		float distance=this.distanceTo(l);
-		Log.d("AREAGO","Colision["+this.getId()+"]: Lat: "+l.getLatitude()+" - Lon: "+l.getLongitude()+ "- distance: "+distance+"/ radius: "+this.radius);
+		Log.d("AREAGO","Colision["+this.soundFile+"]: Lat: "+l.getLatitude()+" - Lon: "+l.getLongitude()+ "- distance: "+distance+"/ radius: "+this.radius);
 		if (distance<=this.radius){
-			Log.d("AREAGO","[****] Colisiona el punto"+this.id+" Estado reproducc: "+this.status);
+			Log.d("AREAGO","Colision["+this.soundFile+"]"+" Estado reproducc: "+this.status+" TYPE:"+this.type);
 			switch (this.status) {
-				case SoundPoint.STATUS_PAUSED :
-				case SoundPoint.STATUS_STOPPED :
+				case SoundPoint.STATUS_PAUSED : case SoundPoint.STATUS_STOPPED :
 					switch (this.type){
 						case SoundPoint.TYPE_PLAY_ONCE:
 							if (!this.played) this.mediaPlay(l);
 							break;
-						case SoundPoint.TYPE_PLAY_UNTIL:
-							if (!this.played) this.mediaPlay(l);
-							break;
-						case SoundPoint.TYPE_PLAY_LOOP:
+						case SoundPoint.TYPE_PLAY_UNTIL: case SoundPoint.TYPE_PLAY_LOOP:
 							Log.d("AREAGO","Playing audio Loop");
 							this.mediaPlay(l);
 							break;
-						// EL RESTO DE TYPE NO AFECTA ??
 					}
 					break;
 				case SoundPoint.STATUS_PLAYING :
 					// Seguimos reproduciendo
-//						if (this.autofade) {
-//							float volume = (float) 1.0 - (float) this.distanceTo(l)/this.radius;
-//							if (volume > 1.0) volume = (float) 1.0;
-//							else if (volume < 0) volume = (float) 0.0;
-//					    	Log.d("AREAGO","[GPS]["+this.soundFile+"]Change Volume : "+volume);
-//					    	this.changeVolume(volume);
-//						} else {
-//							this.changeVolume(1);
-//							Log.d("AREAGO","[GPS] No es AutoFADE");
-//						}
-						changeVolume(calculateVolumen(l));
+						if (this.autofade) changeVolume(calculateVolumen(l));
 					break;
 				case SoundPoint.STATUS_ACTIVATE :
 					// La acción del trigger ya ha sido ejecutada
@@ -218,7 +203,7 @@ public class SoundPoint extends Location {
 					break;
 				case SoundPoint.STATUS_PLAYING :
 					// LO PARAMOS O LO DEJAMOS PAUSADO? No.. 
-					if (this.status!=SoundPoint.TYPE_PLAY_UNTIL)this.mediaStop(); // El play_until lo dejamos hasta que se finalice el audio 
+					if (this.type!=SoundPoint.TYPE_PLAY_UNTIL)this.mediaStop(); // El play_until lo dejamos hasta que se finalice el audio 
 					break;
 				case SoundPoint.STATUS_PAUSED :
 					// LO SEGUIMOS DEJANDO PAUSADO?
@@ -297,6 +282,7 @@ public class SoundPoint extends Location {
 	}
 	
 	private void pauseSoundFile() {
+		this.changeVolume(0);
 		this.mp.pause();
 		this.status=STATUS_PAUSED;
 	}
@@ -427,13 +413,7 @@ public class SoundPoint extends Location {
 				//while (status==SoundPoint.STATUS_CHANGING_VOLUME) {}
 				if (status==SoundPoint.STATUS_PLAYING) {
 				switch (type) {
-				case SoundPoint.TYPE_PLAY_ONCE :
-					Log.d("AREAGO","Se finalizó la reproducción de: " + arg0.getAudioSessionId());
-					//arg0.stop();
-					arg0.release();
-					status = SoundPoint.STATUS_STOPPED;
-					played=true;
-					break;
+				case SoundPoint.TYPE_PLAY_ONCE : // lo mismo que en UNTIL
 				case SoundPoint.TYPE_PLAY_UNTIL :
 					Log.d("AREAGO","Se finalizó la reproducción de: " + arg0.getAudioSessionId());
 					//arg0.stop();
@@ -508,9 +488,16 @@ public class SoundPoint extends Location {
 	}
 	
 	public void pausePlaying(){
-		if (this.mp != null && this.mp.isPlaying()){
-			this.mp.pause();
-			status=STATUS_PAUSED;
+		try {
+			if (this.mp != null){
+				if (this.mp.isPlaying()) {
+					this.mp.pause();
+					status=STATUS_PAUSED;
+				}
+			}
+		} catch (IllegalStateException e) {
+			Log.e("AREAGO","Error al pausar. ");
+			e.printStackTrace();
 		}
 	}
 	

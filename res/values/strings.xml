@@ -20,5 +20,5 @@
     <string name="dipositivo_gps">Dispositivo GPS: </string>
     <string name="gps_disponible">Disponible</string>
     <string name="gps_no_disponible">Buscando satelites</string>
-    <string name="gps_temporalmente_no_disponible">Temporalmente desactivado</string>
+    <string name="gps_temporalmente_no_disponible">Sin conexión, buscando satélites</string>
 </resources>
