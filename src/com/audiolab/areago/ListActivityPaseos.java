@@ -216,6 +216,7 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 	private void getPaseos(String str) {
 
 		JSONArray jArray;
+		//Log.d("AREAGO",str);
 		try {
 			jArray = new JSONArray(str);
 		
@@ -225,7 +226,7 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 
 				Paseo walk = new Paseo(jObject.getInt("id"));
 				if (jObject.has("nombre")) walk.setTitle(jObject.getString("nombre"));
-				if (jObject.has("resumen")) walk.setDescription(jObject.getString("resumen"));
+				if (jObject.has("resumen")) walk.setExcerpt(jObject.getString("resumen"));
 				if (jObject.has("hash")) walk.setHash(jObject.getString("hash"));
 				if (jObject.has("grabaciones")) walk.setGrabaciones(jObject.getInt("grabaciones"));
 				if (jObject.has("idioma")) walk.setIdioma(jObject.getString("idioma"));

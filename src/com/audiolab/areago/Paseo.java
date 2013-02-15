@@ -212,7 +212,7 @@ public class Paseo {
 				
 				
 				if (p.getType()==SoundPoint.TYPE_TOGGLE) { 
-					if (properties.has("destLayer")) {p.setChangeToLayer(properties.getInt("destLayer")); } else {p.setChangeToLayer(0);} // por defecto dirige a la 0
+					if (properties.has("tolayer")) {p.setChangeToLayer(properties.getInt("tolayer")); } else {p.setChangeToLayer(0);} // por defecto dirige a la 0
 				}
 				
 				//Checkeo del audio/fade/.. para tipos que no sean toggle
