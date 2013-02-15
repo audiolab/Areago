@@ -6,7 +6,7 @@
     <string name="menu_settings">Opciones</string>
     <string name="title_activity_main">Areago</string>
     <string name="error_gps">Activa el GPS para arrancar AREAGO</string>
-    <string name="error_wifi">Activa el WIFI para arrancar AREAGO</string>
+    <string name="error_wifi">Si quieres descargar paseos necesitas conectarte a Internet</string>
     <string name="configurar">Configurar</string>
     <!--  List Paseos -->
     <string name="title_list_paseos">AREAGO : Paseos</string>
