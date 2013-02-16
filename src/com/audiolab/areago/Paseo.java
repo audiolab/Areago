@@ -213,6 +213,7 @@ public class Paseo {
 				
 				if (p.getType()==SoundPoint.TYPE_TOGGLE) { 
 					if (properties.has("tolayer")) {p.setChangeToLayer(properties.getInt("tolayer")); } else {p.setChangeToLayer(0);} // por defecto dirige a la 0
+					if (properties.has("essid")) p.setEssid(properties.getString("essid")); // Es posible que hagamos toogle a partir de los wifis..
 				}
 				
 				//Checkeo del audio/fade/.. para tipos que no sean toggle
@@ -255,9 +256,13 @@ public class Paseo {
 		String p = "";
 		for (int i = 0; i<this.puntos.size(); i++){
 			int type = this.puntos.get(i).getType();
-			int layer = this.puntos.get(i).getLayer();
+			int lay = this.puntos.get(i).getLayer();
+			Log.d("AREAGO","[LAYER] "+this.layer);
 			if ( (type == SoundPoint.TYPE_PLAY_LOOP) || (type == SoundPoint.TYPE_PLAY_ONCE) || (type == SoundPoint.TYPE_PLAY_UNTIL) || (type==SoundPoint.TYPE_TOGGLE) ) {
-				if (checkLayer(layer)) { this.layer = this.puntos.get(i).checkColision(l); } // se reproduce algun tipo de sonido
+				if (checkLayer(lay)) { 
+					int r = this.puntos.get(i).checkColision(l);
+					if (r>=0) { this.layer = r; }
+					} // se reproduce algun tipo de sonido
 				else { this.puntos.get(i).stopSoundFile(); } // Debemos parar la reproducción de los archivos que ya no deberían estar sonando
 			}
 			p = p + " | "+this.puntos.get(i).getFolder()+"/"+this.puntos.get(i).getSoundFile();
@@ -267,10 +272,16 @@ public class Paseo {
 	
 	public void check_collisions(List<ScanResult> wifis) {
 		for (int i=0; i<this.puntos.size(); i++) {
+			//Log.d("AREAGO","["+this.puntos.get(i).getEssid()+"]"+this.puntos.get(i).getLayer());
 			int type = this.puntos.get(i).getType();
 			int layer = this.puntos.get(i).getLayer();
 			if ( type==SoundPoint.TYPE_WIFI_PLAY_LOOP || type==SoundPoint.TYPE_TOGGLE ) {
-				if (checkLayer(layer)) { this.layer = this.puntos.get(i).checkColision(wifis); }
+				if (checkLayer(layer)) { 
+					//Log.d("AREAGO","[En el layer actual]["+this.puntos.get(i).getEssid()+"]"+this.puntos.get(i).getLayer());
+					int r = this.puntos.get(i).checkColision(wifis);
+					Log.d("AREAGO","["+this.puntos.get(i).getEssid()+"] La layer de respuesta es: "+r);
+					if (r>=0) { this.layer = r;}
+				}
 				else {this.puntos.get(i).stopSoundFile();}		
 			}
 		}

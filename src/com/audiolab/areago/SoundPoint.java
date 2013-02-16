@@ -77,6 +77,10 @@ public class SoundPoint extends Location {
 	public void setEssid(String SSID) {
 		this.SSID = SSID;
 	}
+	
+	public String getEssid() {
+		return this.SSID;
+	}
 
 	public float getRadius() {
 		return radius;
@@ -164,17 +168,30 @@ public class SoundPoint extends Location {
 	
 	// PRE: Solo puntos de locacalización de sonido
 	// PRE: Los puntos de trigger asociacios a un radio geografico tb se gestionan por aquí
-	// Devuelve la misma capa si no hay cambio o devuelve la capa de destino si hay un toogle de cambio de capa
+	// POST: Devuevle -1 si no hay cambio de capa / N si hay cambio a alguna capa nueva
 	public int checkColision(Location l){
+		
 		float distance=this.distanceTo(l);
-		Log.d("AREAGO","Colision["+this.soundFile+"]: Lat: "+l.getLatitude()+" - Lon: "+l.getLongitude()+ "- distance: "+distance+"/ radius: "+this.radius);
+		
 		if (distance<=this.radius){
+			
 			Log.d("AREAGO","Colision["+this.soundFile+"]"+" Estado reproducc: "+this.status+" TYPE:"+this.type);
+			
+			// TIPO TOGGLE
+			if (this.getType() == SoundPoint.TYPE_TOGGLE) {
+				Log.d("AREAGO", "Cambio de Layer a : "+this.destLayer);
+				return this.destLayer;
+			}
+			
+			// TIPOS DE REPRODUCCIóN
 			switch (this.status) {
 				case SoundPoint.STATUS_PAUSED : case SoundPoint.STATUS_STOPPED :
 					switch (this.type){
 						case SoundPoint.TYPE_PLAY_ONCE:
-							if (!this.played) this.mediaPlay(l);
+							if (!this.played) { 
+								this.mediaPlay(l);
+								this.played=true;
+							}
 							break;
 						case SoundPoint.TYPE_PLAY_UNTIL: case SoundPoint.TYPE_PLAY_LOOP:
 							Log.d("AREAGO","Playing audio Loop");
@@ -186,32 +203,21 @@ public class SoundPoint extends Location {
 					// Seguimos reproduciendo
 						if (this.autofade) changeVolume(calculateVolumen(l));
 					break;
-				case SoundPoint.STATUS_ACTIVATE :
-					// La acción del trigger ya ha sido ejecutada
-					// TODO: De momento se va a poder ejecutar tants veces como se entre.. se podría limitar..
-					return this.layer;
-				case SoundPoint.STATUS_DEACTIVATE:
-					// La acción del trigger no ha sido ejecutada
-					Log.d("AREAGO","GPS Cambio de capa"+this.destLayer);
-					return this.destLayer;
-					//TODO: Deberíamos marcarla para que no se volviera a ejecutar???
 			}
+		// EN EL CASO QUE NO HAYA COLISIÓN EN ESE PUNTO
 		} else {
 			switch (status) {
-				case SoundPoint.STATUS_STOPPED :
-					// SIGUE PARADO
+				case SoundPoint.STATUS_STOPPED : case SoundPoint.STATUS_PAUSED :
+					// SIGUE TAL CUAL
 					break;
 				case SoundPoint.STATUS_PLAYING :
 					// LO PARAMOS O LO DEJAMOS PAUSADO? No.. 
-					if (this.type!=SoundPoint.TYPE_PLAY_UNTIL)this.mediaStop(); // El play_until lo dejamos hasta que se finalice el audio 
-					break;
-				case SoundPoint.STATUS_PAUSED :
-					// LO SEGUIMOS DEJANDO PAUSADO?
+					if (this.type!=SoundPoint.TYPE_PLAY_UNTIL) this.mediaStop(); // El play_until lo dejamos hasta que se finalice el audio 
 					break;
 			}
-			this.played = false; 
+			this.played = false; // Marcamos el punto como no reproducido 
 		}
-		return this.layer;
+		return -1;
 	}
 	
 	// PRE Solo puntos de sonidos en localizaciones WIFI
@@ -243,12 +249,13 @@ public class SoundPoint extends Location {
 							break; 
 					}
 				} else if (this.type == SoundPoint.TYPE_TOGGLE) {
-					if (this.status == SoundPoint.STATUS_DEACTIVATE) { 
+//					if (this.status == SoundPoint.STATUS_DEACTIVATE) { 
 						Log.d("AREAGO","wifi Cambio de capa"+this.destLayer);
 						return this.destLayer; 
-						}
+//						}
 				}
-				return this.layer;
+				//return this.layer;
+				return -1; // no hay cambio de capa..
 			} 
 		}
 		// No hemos encontrado el ESSID en la lista de los wifis disponibles
@@ -259,7 +266,7 @@ public class SoundPoint extends Location {
 				this.mediaStop();
 				break;
 		}
-		return this.layer;
+		return -1; // no hay cambio de capa..
 	}
 	
 	public void stopSoundFile() {
@@ -410,29 +417,24 @@ public class SoundPoint extends Location {
 	    
 	    this.mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
 			public void onCompletion(MediaPlayer arg0) {
-				//while (status==SoundPoint.STATUS_CHANGING_VOLUME) {}
 				if (status==SoundPoint.STATUS_PLAYING) {
-				switch (type) {
-				case SoundPoint.TYPE_PLAY_ONCE : // lo mismo que en UNTIL
-				case SoundPoint.TYPE_PLAY_UNTIL :
-					Log.d("AREAGO","Se finalizó la reproducción de: " + arg0.getAudioSessionId());
-					//arg0.stop();
-					arg0.release();
-					status = SoundPoint.STATUS_STOPPED;
-					played=true;
-					break;
-				case SoundPoint.TYPE_PLAY_LOOP:
-					// TODO: DEBEMOS VOLVER A EJECUTAR O LO MARCAMOS ANTES COMO LOOP PARA QUE NO PARE?
-					Log.d("AREAGO","Se finalizó la reproducción de UN AUDIO LOOP: " + arg0.getAudioSessionId());
-					//arg0.release();
-					arg0.start();
-					status = SoundPoint.STATUS_PLAYING;
-					break;
-				}						
+					switch (type) {
+						case SoundPoint.TYPE_PLAY_ONCE : // lo mismo que en UNTIL
+						case SoundPoint.TYPE_PLAY_UNTIL :
+							Log.d("AREAGO","Se finalizó la reproducción de: " + arg0.getAudioSessionId());
+							arg0.release();
+							status = SoundPoint.STATUS_STOPPED;
+							break;
+						case SoundPoint.TYPE_PLAY_LOOP:
+							Log.d("AREAGO","Se finalizó la reproducción de UN AUDIO LOOP: " + arg0.getAudioSessionId());
+							arg0.start();
+							status = SoundPoint.STATUS_PLAYING;
+							break;
+					}						
 				} else {
 					arg0.release();
 					status = SoundPoint.STATUS_STOPPED;
-					played=true;
+//					played=true;
 				}
 			}
 		});
@@ -442,11 +444,8 @@ public class SoundPoint extends Location {
 	    this.status=SoundPoint.STATUS_PLAYING;
 	    this.mp.start();
 		changeVolume(calculateVolumen(l));
-	    this.played=true;
+//	    this.played=true;
 
-		//this.vibrator.vibrate(300);
-		//Log.d("AREAGO","A vibrar!!!");
-		
 		
 	}
 	
