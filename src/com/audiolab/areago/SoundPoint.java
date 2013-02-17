@@ -48,12 +48,12 @@ public class SoundPoint extends Location {
 	public static final int TYPE_WIFI_PLAY_LOOP=5;
 	
 	// ESTADOS DE REPRODUCCIÓN
-	private static final int STATUS_PLAYING=0;
-	private static final int STATUS_STOPPED=2;
-	private static final int STATUS_PAUSED=3;
-	private static final int STATUS_ACTIVATE=4;
-	private static final int STATUS_DEACTIVATE=5;
-	private static final int STATUS_CHANGING_VOLUME=10;
+	public static final int STATUS_PLAYING=0;
+	public static final int STATUS_STOPPED=2;
+	public static final int STATUS_PAUSED=3;
+	public static final int STATUS_ACTIVATE=4;
+	public static final int STATUS_DEACTIVATE=5;
+	public static final int STATUS_CHANGING_VOLUME=10;
 	
 	// INFO DE MEDIA PLAYER
 	private MediaPlayer mp;
@@ -63,7 +63,6 @@ public class SoundPoint extends Location {
 	private boolean salido = false;
 	private boolean completado = false;
 	public boolean autofade = false;
-	//private SoundPoint instance;
 	
 
 	public int getId() {
@@ -81,7 +80,21 @@ public class SoundPoint extends Location {
 	public String getEssid() {
 		return this.SSID;
 	}
-
+	
+	public boolean hasEssid() {
+		if (this.SSID != null ) return true;
+		return false;
+				
+	}
+	
+	public int getStatus(){
+		return this.status;
+	}
+	
+	public void setStatus(int status){
+		this.status = status;
+	}
+	
 	public float getRadius() {
 		return radius;
 	}
@@ -217,19 +230,18 @@ public class SoundPoint extends Location {
 			}
 			this.played = false; // Marcamos el punto como no reproducido 
 		}
-		return -1;
+		return -2;
 	}
 	
 	// PRE Solo puntos de sonidos en localizaciones WIFI
 	public int checkColision(List<ScanResult> results) {
 		// Revismaos puntos y si son de type WIFI comprobamos si alguno tiene el mismo ESSID
 		// Deberíamos ver si el wifi de este punto está o no..
-		//this.vibrator.vibrate(300);
+
 		for (ScanResult wifi : results) {
 			// Si está aquí dentro debermos ejecutar el audio o cambiar el volumen
-			//Log.d("AREAGO","Existe el punto: "+this.id+"con el ESSID: "+this.SSID+" - Con el Wifi: "+wifi.SSID);
+
 			if (wifi.SSID.equals(this.SSID)) { // Estamos en el radio de acción del wifi
-				//Log.d("AREAGO","Hay colision en: "+this.id+"con el ESSID: "+this.SSID);
 				if (this.type == SoundPoint.TYPE_WIFI_PLAY_LOOP) {
 					switch (this.status) {
 						case SoundPoint.STATUS_PAUSED :
@@ -237,36 +249,24 @@ public class SoundPoint extends Location {
 							this.mediaPlay(wifi);
 							break; 
 						case SoundPoint.STATUS_PLAYING :
-//							float x = (float) (90+wifi.level);
-//							if (x<-1) x=0;
-//							if (x>90) x=90;
-//							float volume = x/90;
-//					    	if (volume > 1.0) volume = (float) 1;
-//					    	else if (volume < 0) volume = (float) 0;
-//					    	Log.d("AREAGO","Change Volume : "+volume);
-//							this.changeVolume(volume);
 							this.changeVolume(calculateVolumen(wifi));
 							break; 
 					}
 				} else if (this.type == SoundPoint.TYPE_TOGGLE) {
-//					if (this.status == SoundPoint.STATUS_DEACTIVATE) { 
-						Log.d("AREAGO","wifi Cambio de capa"+this.destLayer);
-						return this.destLayer; 
-//						}
+					Log.d("AREAGO","wifi Cambio de capa"+this.destLayer);
+					return this.destLayer; 
 				}
-				//return this.layer;
-				return -1; // no hay cambio de capa..
+				return -2; // no hay cambio de capa..
 			} 
 		}
 		// No hemos encontrado el ESSID en la lista de los wifis disponibles
 		// Por lo tanto paramos si está ejecutado lo paramos o no hacemos nada
 		switch(this.status){
 			case SoundPoint.STATUS_PLAYING:
-				//Log.d("AREAGO","Stop Audio Wifi");
 				this.mediaStop();
 				break;
 		}
-		return -1; // no hay cambio de capa..
+		return -2; // no hay cambio de capa..
 	}
 	
 	public void stopSoundFile() {
@@ -274,12 +274,6 @@ public class SoundPoint extends Location {
 	}
 	
 	private void mediaStop(){
-		//this.changeVolume(0);
-//		while (this.status==SoundPoint.STATUS_CHANGING_VOLUME) {
-//			Log.d("AREAGO","Esperando a que finalice el cambio de volumen");
-//			android.os.SystemClock.sleep(100);
-//			
-//		}
 		this.mp.setOnCompletionListener(null);
 		this.mp.stop();
 		this.mp.release();
@@ -300,17 +294,6 @@ public class SoundPoint extends Location {
 	}
 	
 	private void changeVolume(float dVolume) {
-		// escala de log10 de 1-10 -> volumen = 1-log([1-10])
-		// PRE: distancia <= radio
-		// volume = 1 -log(distancia*10/radio)
-		// Problem: distancia*10/radio != 0 porque es un error en logaritmo!!
-		// El resultado queda demasiado duro.. hay que buscar una curba más suave   	
-		/*double d = this.distanceTo(l)*10.0/this.radius;
-		if (d==0.0) d=1.0;
-		float v = (float) (1.0 - Math.log(d));*/
-		// Lo dejo en lineal
-//		float v = (float) this.distanceTo(l)/this.radius;
-		//this.mp.setVolume(this.volume,this.volume);
 		Log.d("AREAGO","[Volumen] Cambio de volumen de "+this.volume+" A "+dVolume);
 		fadeVolume(fadeTime,dVolume);
 		this.volume=dVolume;
@@ -322,8 +305,6 @@ public class SoundPoint extends Location {
 		this.mp = new MediaPlayer();
 		mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
 		this.volume=0;
-	    //this.changeVolume(calculateVolumen(wifi));
-		
 		
 	    try {
 			this.mp.setDataSource(this.folder + "/" + this.soundFile);
@@ -340,18 +321,12 @@ public class SoundPoint extends Location {
 			e.printStackTrace();
 		}		
 	    
-
-	    
-	    //this.vibrator.vibrate(300);
-		//Log.d("AREAGO","A vibrar!!!");
-	    
 	    Log.d("AREAGO","Iniciamos reprod co vol: "+this.volume);
 	    
 	    this.mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
 			public void onCompletion(MediaPlayer arg0) {
 				switch (type) {
 				case  SoundPoint.TYPE_WIFI_PLAY_LOOP:
-					//while (status==SoundPoint.STATUS_CHANGING_VOLUME) { Log.d("AREAGO","Esperando a que se cambie el vol.. en status"+status);}
 					if ( status == SoundPoint.STATUS_PLAYING ) { 
 						Log.d("AREAGO","[WIFI] Se finalizó la reproducción de UN AUDIO LOOP: " + arg0.getAudioSessionId()+" con vol: "+volume+" status:"+status);
 						arg0.start(); 
@@ -366,7 +341,6 @@ public class SoundPoint extends Location {
 	    
 	    this.status=SoundPoint.STATUS_PLAYING;
 	    this.mp.start();
-	    //android.os.SystemClock.sleep(100);
 	    this.played=true;
 	    Log.d("AREAGO","Playing: "+this.folder + "/" + this.soundFile);
 	    this.changeVolume(calculateVolumen(wifi));
@@ -379,9 +353,6 @@ public class SoundPoint extends Location {
 	    } else {	
 	    	// autoFADE
 	    	// basandome en esto: http://stackoverflow.com/questions/8704186/android-scanresult-level-value
-	    	// level = -10dBM es el bueno
-	    	// level = -100dBM malo
-//	    	float vol = (float) ((-1)*wifi.level)/100;
 	    	float x = (float) (90+wifi.level);
 			if (x<-1) x=0;
 			if (x>90) x=90;
@@ -434,7 +405,6 @@ public class SoundPoint extends Location {
 				} else {
 					arg0.release();
 					status = SoundPoint.STATUS_STOPPED;
-//					played=true;
 				}
 			}
 		});
@@ -444,7 +414,6 @@ public class SoundPoint extends Location {
 	    this.status=SoundPoint.STATUS_PLAYING;
 	    this.mp.start();
 		changeVolume(calculateVolumen(l));
-//	    this.played=true;
 
 		
 	}
@@ -470,7 +439,6 @@ public class SoundPoint extends Location {
 		
 	    try {
 			this.mp.setDataSource(this.folder + "/" + this.soundFile);
-			//mp.prepare();
 			this.mp.prepareAsync();
 			this.mp.setLooping(false);
 		} catch (IllegalArgumentException e) {
@@ -490,13 +458,16 @@ public class SoundPoint extends Location {
 		try {
 			if (this.mp != null){
 				if (this.mp.isPlaying()) {
+					this.status=SoundPoint.STATUS_PAUSED;
 					this.mp.pause();
-					status=STATUS_PAUSED;
 				}
 			}
 		} catch (IllegalStateException e) {
-			Log.e("AREAGO","Error al pausar. ");
+			Log.e("AREAGO","Error IllegalState al pausar. ");
 			e.printStackTrace();
+		} catch (NullPointerException ne) {
+			Log.e("AREAGO","Error NullPointer al pausar. ");
+			ne.printStackTrace();
 		}
 	}
 	
@@ -507,7 +478,6 @@ public class SoundPoint extends Location {
 	{
 		Log.d("AREAGO","STATUS: "+this.status);
 		this.old_status = this.status;
-		//this.status = SoundPoint.STATUS_CHANGING_VOLUME;
 	    vol = dVolume; // volumen final
 	    tVolume = this.volume; // volumen inicial
 	    float rVolume = vol - tVolume;

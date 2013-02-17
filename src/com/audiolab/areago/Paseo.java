@@ -16,7 +16,6 @@ import android.location.LocationManager;
 import android.net.wifi.ScanResult;
 import android.os.Vibrator;
 import android.util.Log;
-import android.widget.ImageView;
 
 public class Paseo {
 	
@@ -180,8 +179,22 @@ public class Paseo {
 	}
 	
 	public void pause() {
+		
+//		for (int i=0; i<this.puntos.size(); i++) {
+//			try {
+//				this.puntos.get(i).setStatus(SoundPoint.STATUS_PAUSED);
+//			} catch (NullPointerException e) {
+//				Log.e("AREAGO","Error NullPointer al cambiar estado del punto");
+//			}
+//			Log.d("AREAGO","Pausando punto "+i);
+//		}
+		
 		for (int i=0; i<this.puntos.size(); i++) {
-			this.puntos.get(i).pausePlaying();
+			try {
+				this.puntos.get(i).pausePlaying();
+			} catch (NullPointerException e) {
+				Log.e("AREAGO","Error NullPointer al pausar el punto");
+			}
 			Log.d("AREAGO","Pausando punto "+i);
 		}
 	}
@@ -261,7 +274,7 @@ public class Paseo {
 			if ( (type == SoundPoint.TYPE_PLAY_LOOP) || (type == SoundPoint.TYPE_PLAY_ONCE) || (type == SoundPoint.TYPE_PLAY_UNTIL) || (type==SoundPoint.TYPE_TOGGLE) ) {
 				if (checkLayer(lay)) { 
 					int r = this.puntos.get(i).checkColision(l);
-					if (r>=0) { this.layer = r; }
+					if (r>=-1) { this.layer = r; }
 					} // se reproduce algun tipo de sonido
 				else { this.puntos.get(i).stopSoundFile(); } // Debemos parar la reproducción de los archivos que ya no deberían estar sonando
 			}
@@ -275,12 +288,14 @@ public class Paseo {
 			//Log.d("AREAGO","["+this.puntos.get(i).getEssid()+"]"+this.puntos.get(i).getLayer());
 			int type = this.puntos.get(i).getType();
 			int layer = this.puntos.get(i).getLayer();
-			if ( type==SoundPoint.TYPE_WIFI_PLAY_LOOP || type==SoundPoint.TYPE_TOGGLE ) {
+			if (type==SoundPoint.TYPE_WIFI_PLAY_LOOP || type==SoundPoint.TYPE_TOGGLE) {
 				if (checkLayer(layer)) { 
 					//Log.d("AREAGO","[En el layer actual]["+this.puntos.get(i).getEssid()+"]"+this.puntos.get(i).getLayer());
-					int r = this.puntos.get(i).checkColision(wifis);
-					Log.d("AREAGO","["+this.puntos.get(i).getEssid()+"] La layer de respuesta es: "+r);
-					if (r>=0) { this.layer = r;}
+					if (this.puntos.get(i).hasEssid()) {
+						int r = this.puntos.get(i).checkColision(wifis);
+						Log.d("AREAGO","["+this.puntos.get(i).getEssid()+"] La layer de respuesta es: "+r);
+						if (r>=-1) { this.layer = r;}
+					}
 				}
 				else {this.puntos.get(i).stopSoundFile();}		
 			}
@@ -288,8 +303,8 @@ public class Paseo {
 	}
 	
 	public boolean checkLayer(int l){
-		// Si es la capa actual o es 0 se ejecuta
-		if (l==this.layer || l==0) return true;
+		// Si es la capa actual o es -1 se ejecuta
+		if (l==this.layer || l==-1) return true;
 		return false;
 	}
 	

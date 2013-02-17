@@ -1,6 +1,5 @@
 package com.audiolab.areago;
 
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -19,7 +18,6 @@ import android.media.AudioManager;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.os.Vibrator;
 import android.util.Log;
 import android.view.View;
@@ -49,7 +47,6 @@ public class PaseoPreview extends Activity  {
 	
 	final Runnable Scanning = new Runnable() {
         public void run() {
-        	//Log.d("AREAGO","En el Runnable..");
             wifi.startScan();
        }
 	};
@@ -81,13 +78,8 @@ public class PaseoPreview extends Activity  {
 		walk.setDescription(getIntent().getStringExtra("descripcion"));
 		walk.setExcerpt(getIntent().getStringExtra("excerpt"));
 		walk.setVibrator(v);
-		//walk.setBitmap((Bitmap) getIntent().getParcelableExtra("imagen"));
 		walk.setBitmap(getIntent().getStringExtra("path_image"));
 		if (JSONPoints.length()>0) { walk.create_points(JSONPoints); } else {Toast.makeText(this,"Este paseo no tiene puntos",Toast.LENGTH_LONG).show();}
-		
-		
-//		((TextView)findViewById(R.id.titulo)).setText(getIntent().getStringExtra("titulo"));
-//		((TextView)findViewById(R.id.descripcion)).setText(getIntent().getStringExtra("descripcion"));
 		
 		if (walk.hasImage()) { ((ImageView)findViewById(R.id.imagen)).setImageBitmap(walk.getBitmap()); }
 		else { ((ImageView)findViewById(R.id.imagen)).setImageResource(R.drawable.areago_48dp);}
@@ -114,9 +106,6 @@ public class PaseoPreview extends Activity  {
     	Criteria crit = new Criteria();
     	crit.setAccuracy(Criteria.ACCURACY_FINE);
     	locManager.getLastKnownLocation(locManager.getBestProvider(crit, true));
-
-    	//Vibraciones
-    	//v.vibrate(300);
 		
     	//configure wifi
     	wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
@@ -149,9 +138,6 @@ public class PaseoPreview extends Activity  {
 
 	public void onPause() {
 		super.onPause();
-		//locManager.removeUpdates(locationListener); // TODO: Al volver a la pantalla de lista de paseo se debería parar... Y lo queremos así?
-//		while (!exec.isShutdown()) { exec.shutdownNow(); }
-//		this.walk.pause();
 		Log.d("AREAGO","onPause");
 	}
 	
@@ -161,7 +147,6 @@ public class PaseoPreview extends Activity  {
 		
 		while (!exec.isShutdown()) { exec.shutdownNow(); }
 		this.walk.pause();
-		
 		this.walk.stop();
 		try {
 			locManager.removeUpdates(locationListener);
@@ -170,16 +155,6 @@ public class PaseoPreview extends Activity  {
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 		}
-		
-		
-//		while(updateTask.cancel()) {
-//			Log.d("AREAGO","Al cerrar la tarea muestra este valor es false");
-//			android.os.SystemClock.sleep(3000);
-//		}
-//		
-//		timer.cancel();
-//		int i = timer.purge();
-//		Log.d("AREAGO","El número de tareas matadas: "+i);
 		
 		try { 
 			unregisterReceiver(receiver); // TODO: Peta cuando no está ejecutandose el receiver y se quiere parar...
@@ -193,9 +168,6 @@ public class PaseoPreview extends Activity  {
 	public void onDestroy() {
 		super.onDestroy();
 		while (!exec.isShutdown()) { exec.shutdownNow(); }
-//		this.walk.stop();
-//		unregisterReceiver(receiver);
-//		locManager.removeUpdates(locationListener);
 		Log.d("AREAGO","onDestroy");
 	}
 	
