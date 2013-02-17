@@ -22,6 +22,7 @@ import android.os.Vibrator;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowManager;
 import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -56,10 +57,9 @@ public class PaseoPreview extends Activity  {
 	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		Log.d("AREAGO","En PaseoPreview");
-		//getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, 
-        //        WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		setContentView(R.layout.paseo_preview);
 		setTitle("AREAGO : "+getIntent().getStringExtra("titulo"));
 		

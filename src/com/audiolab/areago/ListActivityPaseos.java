@@ -32,7 +32,9 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.BitmapFactory.Options;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -62,6 +64,7 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 	
 	public String PATH_PASEOS;
 	public String DOWNLOAD_URL = "http://www.xavierbalderas.com/areago/areago/descarga/";
+	public String Paseos_Online; // Json con los paseos del intent
 	
 	@Override
 	public void onCreate (Bundle savedInstanceState) {
@@ -81,134 +84,150 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 		}
 		
 		PATH_PASEOS = or.getAbsolutePath() + "/Areago";
-		
-		/// Miramos la disponibilidad de paseos en la máquina
-		/// Añadimos a Walks los paseos descargados
-		getPaseos();
-		
-		/// Cargamos paseos online (hemos cargado el archivo en el activity anterior)
-		if (getIntent().hasExtra("json")) getPaseos(getIntent().getStringExtra("json"));
-
+//		if (getIntent().hasExtra("json")) Paseos_Online = getIntent().getStringExtra("json");
 		
 		// Creamos la lista de paseos recorriendo walks
-		
-		LinearLayout l = (LinearLayout)findViewById(R.id.layout_general);
-		
-		try {
-			
-			Set set = walks.entrySet();
-			Iterator iter = set.iterator();
-			
-			while (iter.hasNext()) {
+				LinearLayout l = (LinearLayout)findViewById(R.id.layout_general);
 				
-				Map.Entry me = (Map.Entry)iter.next();
-				Paseo p = (Paseo) me.getValue();
+				/// Paseo Locales
+				getPaseos();
 				
-				ScrollView sv = new ScrollView(this);
+				/// Cargamos paseos online (hemos cargado el archivo en el activity anterior)
+				if (getIntent().hasExtra("json")) getPaseos(getIntent().getStringExtra("json"));
 				
-				LayoutParams params = new LinearLayout.LayoutParams(300, LayoutParams.WRAP_CONTENT);
-				LinearLayout layout = new LinearLayout(this);
-				layout.setOrientation(LinearLayout.VERTICAL);
-				layout.setBackgroundResource(R.color.white);
-				
-				// Cabecera
-				RelativeLayout rl = new RelativeLayout(this);
-				rl.setLayoutParams(params);
-				LayoutParams tparams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT);
-				//Imagen
-				ImageView img = new ImageView(this);
-				img.setLayoutParams(params);
-				if (p.hasImage()) {
-					try {
-					if (!p.isDownload()) { // Si la imagen es todavía una url
-						//Bitmap bitmap = BitmapFactory.decodeStream((InputStream)new URL(p.getImage()).getContent());
-						// TODO: Que pasa si no hay wifi? No tendremos la lista de paseos online y no entraremos aqui
-					  Bitmap bitmap = BitmapFactory.decodeStream((InputStream)new URL(p.getImage()).getContent());
-					  img.setImageBitmap(bitmap);
-					} else { // La imagen ya está cargada como bitmap
-						img.setImageBitmap(p.getBitmap());
+				try {
+					
+					Set set = walks.entrySet();
+					Iterator iter = set.iterator();
+					
+					
+					while (iter.hasNext()) {
+						
+						Map.Entry me = (Map.Entry)iter.next();
+						Paseo p = (Paseo) me.getValue();
+						
+						ScrollView sv = new ScrollView(this);
+						
+						LayoutParams params = new LinearLayout.LayoutParams(300, LayoutParams.WRAP_CONTENT);
+						LinearLayout layout = new LinearLayout(this);
+						layout.setOrientation(LinearLayout.VERTICAL);
+						layout.setBackgroundResource(R.color.white);
+						
+						// Cabecera
+						RelativeLayout rl = new RelativeLayout(this);
+						rl.setLayoutParams(params);
+						LayoutParams tparams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT);
+						//Imagen
+						ImageView img = new ImageView(this);
+						img.setLayoutParams(params);
+						//Toast.makeText(this,"Cargando paseo "+p.getTitle(),Toast.LENGTH_LONG).show();
+						if (p.hasImage()) {
+							try {
+							if (!p.isDownload()) { // Si la imagen es todavía una url
+								//Bitmap bitmap = BitmapFactory.decodeStream((InputStream)new URL(p.getImage()).getContent());
+								// TODO: Que pasa si no hay wifi? No tendremos la lista de paseos online y no entraremos aqui
+								Options options = new BitmapFactory.Options();
+								Rect r = new Rect(0,0,512,512);
+							  Bitmap bitmap = BitmapFactory.decodeStream((InputStream)new URL(p.getImage()).getContent(), r, options);
+							  if (bitmap!=null) { 
+								  img.setImageBitmap(bitmap);
+							  } else {
+								  Log.d("AREAGO","Añadiendo imagen default a la descargada..");
+								  img.setImageResource(R.drawable.areago_default);
+							  }
+							  
+							} else { // La imagen ya está cargada como bitmap
+								img.setImageBitmap(p.getBitmap());
+							}
+							} catch (MalformedURLException e) {
+								img.setImageResource(R.drawable.areago_default);
+							} catch (IOException e) {
+									img.setImageResource(R.drawable.areago_default);
+							}
+						} 
+						else { 
+							Log.d("AREAGO","Añadiendo imagen default");
+							img.setImageResource(R.drawable.areago_default);
+						}
+						img.setAdjustViewBounds(true);
+						img.setClickable(true);
+						img.setOnClickListener(this);
+						img.setId(p.getId());
+						//Texto Titulo
+						TextView timage = new TextView(this);
+						timage.setText(String.valueOf(p.getTitle()));
+						timage.setLayoutParams(params);
+						timage.setHeight(40);
+						timage.setGravity(android.view.Gravity.CENTER);
+						timage.setBackgroundColor(Color.argb(200, 0, 0, 0));
+						// Regla para alinear en la parte inferior centrado
+						RelativeLayout.LayoutParams rlp = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT); // You might want to tweak these to WRAP_CONTENT
+						rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+						rlp.addRule(RelativeLayout.CENTER_HORIZONTAL);
+						// Regla para la info del estado del paseo
+						RelativeLayout.LayoutParams pinfo = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT); // You might want to tweak these to WRAP_CONTENT
+						pinfo.setMargins(0, 10, 0, 0); // 50px de margen del superior del relativelayout
+						TextView tinfo = new TextView(this);
+						tinfo.setLayoutParams(params);
+						tinfo.setHeight(40);
+						tinfo.setGravity(android.view.Gravity.CENTER);
+						tinfo.setBackgroundColor(Color.argb(255, 102, 153, 0)); //verde?
+						//Añadimos imagen y texto
+						rl.addView(img);
+						rl.addView(timage, rlp);
+						//Añadimos el relative layout al layout general
+						layout.addView(rl);
+						
+
+
+						TextView tv = new TextView(this);
+						tv.setBackgroundResource(R.color.white);
+						tv.setTextColor(Color.BLACK);
+						tv.setTypeface(null,Typeface.BOLD);
+						tv.setText(String.valueOf(p.getIdioma()));
+						tv.setLayoutParams(params);
+						layout.addView(tv);
+						
+						tv = new TextView(this);
+						tv.setBackgroundResource(R.color.white);
+						tv.setTextColor(Color.BLACK);
+						tv.setText(p.getExcerpt());
+						tv.setLayoutParams(params);
+						layout.addView(tv);
+						
+						tv = new TextView(this);
+						tv.setBackgroundResource(R.color.white);
+
+						
+						if (!p.isDownload()) {
+							tinfo.setText(getString(R.string.descarga_disponible));
+							rl.addView(tinfo,pinfo);
+						} else if (!p.isUpdate()) { 
+							tinfo.setText(getString(R.string.actualizacion_disponible));
+							rl.addView(tinfo,pinfo);
+						}
+
+						LinearLayout.LayoutParams layoutParam = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.WRAP_CONTENT);
+
+						sv.addView(layout,layoutParam);
+						sv.setBackgroundResource(R.color.white);
+						
+						l.addView(sv);
+						l.setBackgroundResource(R.color.white);
+						
 					}
-					} catch (MalformedURLException e) {
-						img.setImageResource(R.drawable.areago_48dp);
-					} catch (IOException e) {
-							img.setImageResource(R.drawable.areago_48dp);
-					}
-				} 
-				else { 
-					Log.d("AREAGO","Añadiendo imagen default");
-					img.setImageResource(R.drawable.areago_48dp);
+				
+				} catch (Exception ex) {
+					Log.d("ERROR","Exception..");
 				}
-				img.setAdjustViewBounds(true);
-				img.setClickable(true);
-				img.setOnClickListener(this);
-				img.setId(p.getId());
-				//Texto Titulo
-				TextView timage = new TextView(this);
-				timage.setText(String.valueOf(p.getTitle()));
-				timage.setLayoutParams(params);
-				timage.setHeight(40);
-				timage.setGravity(android.view.Gravity.CENTER);
-				timage.setBackgroundColor(Color.argb(200, 0, 0, 0));
-				// Regla para alinear en la parte inferior centrado
-				RelativeLayout.LayoutParams rlp = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT); // You might want to tweak these to WRAP_CONTENT
-				rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-				rlp.addRule(RelativeLayout.CENTER_HORIZONTAL);
-				// Regla para la info del estado del paseo
-				RelativeLayout.LayoutParams pinfo = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT); // You might want to tweak these to WRAP_CONTENT
-				pinfo.setMargins(0, 10, 0, 0); // 50px de margen del superior del relativelayout
-				TextView tinfo = new TextView(this);
-				tinfo.setLayoutParams(params);
-				tinfo.setHeight(40);
-				tinfo.setGravity(android.view.Gravity.CENTER);
-				tinfo.setBackgroundColor(Color.argb(255, 102, 153, 0)); //verde?
-				//Añadimos imagen y texto
-				rl.addView(img);
-				rl.addView(timage, rlp);
-				//Añadimos el relative layout al layout general
-				layout.addView(rl);
-				
-
-
-				TextView tv = new TextView(this);
-				tv.setBackgroundResource(R.color.white);
-				tv.setTextColor(Color.BLACK);
-				tv.setTypeface(null,Typeface.BOLD);
-				tv.setText(String.valueOf(p.getIdioma()));
-				tv.setLayoutParams(params);
-				layout.addView(tv);
-				
-				tv = new TextView(this);
-				tv.setBackgroundResource(R.color.white);
-				tv.setTextColor(Color.BLACK);
-				tv.setText(p.getExcerpt());
-				tv.setLayoutParams(params);
-				layout.addView(tv);
-				
-				tv = new TextView(this);
-				tv.setBackgroundResource(R.color.white);
-
-				
-				if (!p.isDownload()) {
-					tinfo.setText(getString(R.string.descarga_disponible));
-					rl.addView(tinfo,pinfo);
-				} else if (!p.isUpdate()) { 
-					tinfo.setText(getString(R.string.actualizacion_disponible));
-					rl.addView(tinfo,pinfo);
-				}
-
-				LinearLayout.LayoutParams layoutParam = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.WRAP_CONTENT);
-
-				sv.addView(layout,layoutParam);
-				sv.setBackgroundResource(R.color.white);
-				
-				l.addView(sv);
-				l.setBackgroundResource(R.color.white);
-				
-			}
 		
-		} catch (Exception ex) {
-			Log.d("ERROR","Exception..");
-		}
+	}
+	
+	public void onResume () {
+		
+		super.onResume();
+		
+		
 		
 	}
 
@@ -337,6 +356,8 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 			startDownload();
 		}
 	}
+	
+
 	
 	public void start_walk() {
 		

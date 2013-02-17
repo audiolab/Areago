@@ -456,7 +456,7 @@ public class SoundPoint extends Location {
 	
 	public void pausePlaying(){
 		try {
-			if (this.mp != null){
+			if (this.mp != null && this.status==SoundPoint.STATUS_PLAYING) {
 				if (this.mp.isPlaying()) {
 					this.status=SoundPoint.STATUS_PAUSED;
 					this.mp.pause();

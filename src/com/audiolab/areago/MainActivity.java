@@ -10,13 +10,9 @@ import java.net.URL;
 import java.net.URLConnection;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
@@ -28,6 +24,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
 public class MainActivity extends Activity {
@@ -39,6 +37,8 @@ public class MainActivity extends Activity {
 	LocationListener locationListener;
 	Double lat;
 	Double lon;
+	
+	
 	
 	private InputStream OpenHttpConnection (String urlString) throws IOException {
 		InputStream in = null;
@@ -85,65 +85,21 @@ public class MainActivity extends Activity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, 
                                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);        
-        findViewById(R.id.imageView1).setClickable(false);
         getWindow().setBackgroundDrawableResource(android.R.color.white);
+        setTitle("AREAGO : Inicio");
+        
         //Cargar datos de las preferencias par las globales
         SharedPreferences appPrefs = getSharedPreferences("com.audiolab.areago_preferences",MODE_PRIVATE);
-        
-        
-
-        
         
         if (!appPrefs.contains("editUrlServer")) {
         	SharedPreferences.Editor prefEditor = appPrefs.edit();
         	prefEditor.putString("editUrlServer", "http://www.xavierbalderas.com/areago/areago/listado");
         	prefEditor.commit();
         	// TODO: No me gusta como se visualiza la actividad.. la inserto a mano de momento hasta mejorar esta opción.
-//        	Toast.makeText(getBaseContext(),"No está configurado el servidor de descarga de paseos. Configuramos con el servidor por defecto.",Toast.LENGTH_LONG).show();
-//        	Intent i = new Intent("com.audiolab.areago.AreagoPreferences");
-//    		startActivity(i);
-        	
-        	
-//    		i = getIntent();
-//    		finish();
-//    		startActivity(i);
         }
         url = appPrefs.getString("editUrlServer", "");
         
-        setTitle("AREAGO : Inicio");
 
-        //Wireless
-
-        if (!init_wireless()) { 
-        	Log.d("AREAGO","Wireless Inactivo. No podras descargar paseos nuevos.");
-        	showDialog(1);
-        }
-        else { 
-        	Log.d("AREAGO","Wireless Activado");
-        	}
-        findViewById(R.id.imageView1).setClickable(true);
-        
-        //GPS
-        if (!init_gps()) {
-        	Log.d("AREAGO","Esta apagado del GPS");
-        	findViewById(R.id.imageView1).setClickable(false);
-        	showDialog(0);
-        } else {
-//        	t.setText(t.getText()+"GPS Activado\n");
-        }
-        //dialog.dismiss();
-        
-        //Storage
-        // TODO: Comprobar el estado de la SD
-//        t.setText(t.getText()+"Comprobando tarjeta de memoria - ");
-        if ( !android.os.Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED) ) {	
-//        	t.setText(t.getText()+"SDCard no es accesible, comprobar antes de continuar\n");
-        	showDialog(2);
-        	findViewById(R.id.imageView1).setClickable(false);
-        	return;
-        }
-        
-//        t.setText(t.getText()+"Pulsa sobre la imagen para continuar\n");
     }
 
     
@@ -151,59 +107,51 @@ public class MainActivity extends Activity {
     	// TODO Auto-generated method stub
     	locManager = (LocationManager) getSystemService(LOCATION_SERVICE);
     	if ( !locManager.isProviderEnabled("gps") ) return false;
-    	// Lo desactivo mientras no gestionemos aquí la carga el punto donde se encuentra el paseante.
-    	/* 
-    	locationListener = new AreagoLocationListener();
-    	
-    	Criteria crit = new Criteria();
-    	crit.setAccuracy(Criteria.ACCURACY_FINE);
-    	locManager.getLastKnownLocation(locManager.getBestProvider(crit, true));
-    	*/
     	return true;
 	}
 
-    private class AreagoLocationListener implements LocationListener {
-    	
-    	public void onLocationChanged(Location location) {
-    		// TODO Auto-generated method stub
-    		if (location != null) {
-    			//Toast.makeText(getBaseContext(),"Location changed",Toast.LENGTH_LONG).show();
-    			((TextView)findViewById(R.id.gps)).setText("Posición: "+location.getLatitude()+"/"+location.getLongitude()+"/"+location.getAccuracy());
-    			lat = location.getLatitude();
-    			lon = location.getLongitude();
-    		}
-    		
-    	}
-
-    	public void onProviderDisabled(String provider) {
-    		// TODO Auto-generated method stub
-    		((TextView)findViewById(R.id.gps)).setText(provider+" desconectado");
-    		
-    		
-    	}
-
-    	public void onProviderEnabled(String provider) {
-    		// TODO Auto-generated method stub
-    		((TextView)findViewById(R.id.gps)).setText("GPS Conectado:"+provider);
-    		
-
-    	}
-
-    	public void onStatusChanged(String provider, int status, Bundle extras) {
-    		// TODO Auto-generated method stub
-    		String st = "";
-    		switch (status) {
-    		case android.location.LocationProvider.AVAILABLE:
-    			st="Disponible";
-    		case android.location.LocationProvider.OUT_OF_SERVICE:
-    			st="Desactivado";
-    		case android.location.LocationProvider.TEMPORARILY_UNAVAILABLE:
-    			st="Temporalmente desactivado";
-    		}
-    		((TextView)findViewById(R.id.gps)).setText("GPS Status:"+st);
-    	}
-
-    }
+//    private class AreagoLocationListener implements LocationListener {
+//    	
+//    	public void onLocationChanged(Location location) {
+//    		// TODO Auto-generated method stub
+//    		if (location != null) {
+//    			//Toast.makeText(getBaseContext(),"Location changed",Toast.LENGTH_LONG).show();
+//    			((TextView)findViewById(R.id.gps)).setText("Posición: "+location.getLatitude()+"/"+location.getLongitude()+"/"+location.getAccuracy());
+//    			lat = location.getLatitude();
+//    			lon = location.getLongitude();
+//    		}
+//    		
+//    	}
+//
+//    	public void onProviderDisabled(String provider) {
+//    		// TODO Auto-generated method stub
+//    		((TextView)findViewById(R.id.gps)).setText(provider+" desconectado");
+//    		
+//    		
+//    	}
+//
+//    	public void onProviderEnabled(String provider) {
+//    		// TODO Auto-generated method stub
+//    		((TextView)findViewById(R.id.gps)).setText("GPS Conectado:"+provider);
+//    		
+//
+//    	}
+//
+//    	public void onStatusChanged(String provider, int status, Bundle extras) {
+//    		// TODO Auto-generated method stub
+//    		String st = "";
+//    		switch (status) {
+//    		case android.location.LocationProvider.AVAILABLE:
+//    			st="Disponible";
+//    		case android.location.LocationProvider.OUT_OF_SERVICE:
+//    			st="Desactivado";
+//    		case android.location.LocationProvider.TEMPORARILY_UNAVAILABLE:
+//    			st="Temporalmente desactivado";
+//    		}
+//    		((TextView)findViewById(R.id.gps)).setText("GPS Status:"+st);
+//    	}
+//
+//    }
 
 
 	private boolean init_wireless() {
@@ -218,62 +166,80 @@ public class MainActivity extends Activity {
 		return mWifi.isConnected();
 	}
 	
-	@Override
-	protected Dialog onCreateDialog(int id) {
-		AlertDialog.Builder builder;
-		builder = new AlertDialog.Builder(this);
-		switch(id) {
-		case 0: // GPS
-			builder.setMessage(getString(R.string.error_gps));
-	        builder.setPositiveButton(getString(R.string.configurar), new DialogInterface.OnClickListener() {
-	            public void onClick(DialogInterface dialog, int id) {
-	            	startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-	            	Intent i = getIntent();
-	    			finish();
-	    			startActivity(i);
-	            }
-	        });
-			break;
-		case 1: // Wifi
-			builder.setMessage(R.string.error_wifi)
-	        .setPositiveButton(getString(R.string.configurar), new DialogInterface.OnClickListener() {
-	            public void onClick(DialogInterface dialog, int id) {
-	            	startActivity(new Intent(android.provider.Settings.ACTION_WIFI_SETTINGS));
-	            	Intent i = getIntent();
-	    			finish();
-	    			startActivity(i);
-	            }
-	        });
-			break;
-		case 2: // Storage
-			builder.setMessage(R.string.error_no_escribir_tarjeta)
-	        .setPositiveButton(getString(R.string.configurar), new DialogInterface.OnClickListener() {
-	            public void onClick(DialogInterface dialog, int id) {
-	            	startActivity(new Intent(android.provider.Settings.ACTION_MEMORY_CARD_SETTINGS));
-	            	Intent i = getIntent();
-	    			finish();
-	    			startActivity(i);
-	            }
-	        });
-			break;
-		}
-		return builder.create();
-	}
-
 public void onResume() {
-
+	
 	super.onResume();
-	//locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+	
+	// Iniciamos la animación
+	Animation fadeIN = AnimationUtils.loadAnimation(this, R.anim.fadein);
+	
+	findViewById(R.id.imageView1).setClickable(false);
+	findViewById(R.id.imageView1).setVisibility(View.VISIBLE);
+	findViewById(R.id.imageView1).startAnimation(fadeIN);
+	
+	// Lo cambiamos para que tenga algo de delay
+	fadeIN = AnimationUtils.loadAnimation(this, R.anim.fadein_largo);
+	
+	((TextView)findViewById(R.id.ErrorWifi)).setVisibility(View.INVISIBLE);
+	((TextView)findViewById(R.id.ErrorGPS)).setVisibility(View.INVISIBLE);
+	((TextView)findViewById(R.id.ErrorStorage)).setVisibility(View.INVISIBLE);
+	
+	//Wireless
+    if (!init_wireless()) { 
+    	Log.d("AREAGO","Wireless Inactivo. No podras descargar paseos nuevos.");
+    	findViewById(R.id.imageView1).setClickable(false);
+    	findViewById(R.id.ErrorWifi).setClickable(true);
+    	((TextView)findViewById(R.id.ErrorWifi)).setText(R.string.error_wifi);
+    	((TextView)findViewById(R.id.ErrorWifi)).setVisibility(View.VISIBLE);
+    	((TextView)findViewById(R.id.ErrorWifi)).startAnimation(fadeIN);
+
+    }
+    //GPS
+    else if (!init_gps()) {
+    	Log.d("AREAGO","Esta apagado del GPS");
+    	findViewById(R.id.imageView1).setClickable(false);
+    	findViewById(R.id.ErrorGPS).setClickable(true);
+    	((TextView)findViewById(R.id.ErrorGPS)).setText(R.string.error_gps);
+    	((TextView)findViewById(R.id.ErrorGPS)).setVisibility(View.VISIBLE);
+    	((TextView)findViewById(R.id.ErrorGPS)).startAnimation(fadeIN);
+    }  
+    	//Storage
+    else if ( !android.os.Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED) ) {	
+        findViewById(R.id.imageView1).setClickable(false);
+        ((TextView)findViewById(R.id.ErrorStorage)).setText(R.string.error_no_escribir_tarjeta);
+    	((TextView)findViewById(R.id.ErrorStorage)).setVisibility(View.VISIBLE);
+    	((TextView)findViewById(R.id.ErrorStorage)).startAnimation(fadeIN);
+        return;
+    } else {
+    	findViewById(R.id.imageView1).setClickable(true);
+    }
 }
 
 public void onPause() {
 	super.onPause();
-	//locManager.removeUpdates(locationListener);
 }
+
+	public void EnableWifi (View v) {
+		startActivity(new Intent(android.provider.Settings.ACTION_WIFI_SETTINGS));
+    	Intent i = getIntent();
+		startActivity(i);
+	}
+
+	public void EnableGPS (View v) {
+        startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+        Intent i = getIntent();
+		startActivity(i);
+	}
+	
+	public void checkStorage (View v) {
+		startActivity(new Intent(android.provider.Settings.ACTION_MEMORY_CARD_SETTINGS));
+    	Intent i = getIntent();
+		startActivity(i);
+	}
 
 	public void onClick(View view) {
     	
-    				final ProgressDialog dialog = ProgressDialog.show(this,"Cargando rutas","Espera...",true);
+    				final ProgressDialog dialog = ProgressDialog.show(this,getString(R.string.cargando_rutas),getString(R.string.espera),true);
     				
     				new Thread(new Runnable(){
     					public void run(){
@@ -286,7 +252,7 @@ public void onPause() {
     					} catch (Exception e) {
     						e.printStackTrace();
     					}
-    				}
+    					}
 
 						private String init_rutas() {
 							// TODO Auto-generated method stub
@@ -336,13 +302,7 @@ public void onPause() {
     @Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// TODO Auto-generated method stub
-	    // Handle item selection
 	    switch (item.getItemId()) {
-//	    	case R.id.preferences:
-//	    		//Toast.makeText(this,"En construcción..",Toast.LENGTH_LONG).show();
-//	    		Intent i = new Intent("com.audiolab.areago.AreagoPreferences");
-//	    		startActivity(i);
-//	    		return true;
 	    	case R.id.exit:
 	    		System.exit(0);
 	    		return true;

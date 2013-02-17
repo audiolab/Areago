@@ -1,24 +1,25 @@
 <resources>
-
     <!--  Main -->
     <string name="app_name">Areago</string>
-    <string name="loading_data">Cargando datos</string>
-    <string name="menu_settings">Opciones</string>
+    <string name="loading_data">Datuak kargatzen</string>
+    <string name="menu_settings">Aukerak</string>
     <string name="title_activity_main">Areago</string>
-    <string name="error_gps">Activa el GPS para arrancar AREAGO</string>
-    <string name="error_wifi">Si quieres descargar paseos necesitas conectarte a Internet</string>
-    <string name="configurar">Configurar</string>
+    <string name="error_gps">Piztu GPSa AREAGO martxan jartzeko</string>
+    <string name="error_wifi">Soinu ibilaldiak deskargatzeko interneterako konexioa beharrezkoa da</string>
+    <string name="configurar">Konfiguratu</string>
+    <string name="cargando_rutas">Ibilaldiak kargatzen</string>
+    <string name="espera">Itxaron, mesedez</string>
     <!--  List Paseos -->
-    <string name="title_list_paseos">AREAGO : Paseos</string>
-    <string name="descarga_disponible">Descarga disponible</string>
-    <string name="actualizacion_disponible">Actualización Disponible</string>
-    <string name="error_no_hay_paseos_memoria">No hay paseos en memoria</string>
-    <string name="error_no_escribir_tarjeta">No se puede escribir en la tarjeta</string>
-    <string name="proceso_descargando_paseo">Descargando archivos paseo...</string>
+    <string name="title_list_paseos">Ibilaldiak</string>
+    <string name="descarga_disponible">Deskarga eskuragarri</string>
+    <string name="actualizacion_disponible">Eguneraketa eskuragarri</string>
+    <string name="error_no_hay_paseos_memoria">Ez dago ibilaldirik memorian</string>
+    <string name="error_no_escribir_tarjeta">Ezin da txartelan idatzi</string>
+    <string name="proceso_descargando_paseo">Ibilaldirako artxiboak deskargatzen</string>
     <!--  Paseo Preview -->
-    <string name="buscando_satelites">Buscando Satelites</string>
-    <string name="dipositivo_gps">Dispositivo GPS: </string>
-    <string name="gps_disponible">Disponible</string>
-    <string name="gps_no_disponible">Buscando satelites</string>
-    <string name="gps_temporalmente_no_disponible">Sin conexión, buscando satélites</string>
+    <string name="buscando_satelites">Sateliteak bilatzen</string>
+    <string name="dipositivo_gps">GPS gailua</string>
+    <string name="gps_disponible">GPSa Erabilgarri</string>
+    <string name="gps_no_disponible">Sateliteak bilatzen</string>
+    <string name="gps_temporalmente_no_disponible"> Konexiorik gabe, Sateliteak bilatzen</string>
 </resources>
