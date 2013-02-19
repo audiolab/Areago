@@ -64,7 +64,9 @@ public class SoundPoint extends Location {
 	private boolean completado = false;
 	public boolean autofade = false;
 	
-
+	public static float MIN_ACCURACY = (float) 20.0;
+	public CountDownTimer CountDown;
+	
 	public int getId() {
 		return id;
 	}
@@ -184,10 +186,15 @@ public class SoundPoint extends Location {
 	// POST: Devuevle -1 si no hay cambio de capa / N si hay cambio a alguna capa nueva
 	public int checkColision(Location l){
 		
-		float distance=this.distanceTo(l);
+
+		if ( l.getAccuracy()>= (float) 20.0 )return -2;
 		
-		if (distance<=this.radius){
-			
+		float distance=this.distanceTo(l);
+		Log.d("AREAGO","[Distance]["+this.soundFile+"][Status:"+this.status+"]"+distance);
+		
+		if ( (distance<=this.radius) && ( l.getAccuracy() < SoundPoint.MIN_ACCURACY )){
+			// Si la accuracy es inferior a 20 metros no hacemos gestión de los puntos por problemas de gestión con otros puntos
+			// COLISIÓN DEL PUNTO
 			Log.d("AREAGO","Colision["+this.soundFile+"]"+" Estado reproducc: "+this.status+" TYPE:"+this.type);
 			
 			// TIPO TOGGLE
@@ -240,8 +247,9 @@ public class SoundPoint extends Location {
 
 		for (ScanResult wifi : results) {
 			// Si está aquí dentro debermos ejecutar el audio o cambiar el volumen
-
-			if (wifi.SSID.equals(this.SSID)) { // Estamos en el radio de acción del wifi
+			
+			Log.d("AREAGO", "[Level]["+wifi.SSID+"]"+wifi.level);
+			if ( wifi.SSID.equals(this.SSID)) { // Estamos en el radio de acción del wifi
 				if (this.type == SoundPoint.TYPE_WIFI_PLAY_LOOP) {
 					switch (this.status) {
 						case SoundPoint.STATUS_PAUSED :
@@ -274,6 +282,7 @@ public class SoundPoint extends Location {
 	}
 	
 	private void mediaStop(){
+		if (this.CountDown!=null) this.CountDown.cancel();
 		this.mp.setOnCompletionListener(null);
 		this.mp.stop();
 		this.mp.release();
@@ -283,6 +292,7 @@ public class SoundPoint extends Location {
 	}
 	
 	private void pauseSoundFile() {
+		if (this.CountDown!=null) this.CountDown.cancel();
 		this.changeVolume(0);
 		this.mp.pause();
 		this.status=STATUS_PAUSED;
@@ -484,7 +494,7 @@ public class SoundPoint extends Location {
 	    float steps = (float) duration/increment; // numero de veces que hace el cambio en tantos milisegundos
 	    final float vIncrement = rVolume/steps; //sera positivo si es FadeIN o negativo si FadeOut
 
-	    new CountDownTimer(duration, increment)
+	    CountDown = new CountDownTimer(duration, increment)
 	    {
 	        public void onFinish() 
 	        {
@@ -495,6 +505,7 @@ public class SoundPoint extends Location {
 	        			mp.stop();
 	        			mp.release();
 	        			mp = null;
+	        			cancel();
 	        		} catch (IllegalStateException ex) {
 	        			ex.printStackTrace();
 	        		}
@@ -508,12 +519,19 @@ public class SoundPoint extends Location {
 	        {
 	            tVolume += vIncrement;
 	            try {
-	            	if (mp.isPlaying()) mp.setVolume(tVolume, tVolume);
+	            	if (mp != null) {
+	            		if (mp.isPlaying()) { 
+	            			mp.setVolume(tVolume, tVolume);
+	            		}
+	            	}
 	            } catch (IllegalStateException e) {
 	            	try {
-	        			mp.stop();
-	        			mp.release();
-	        			mp = null;
+	        			if (mp != null) {
+	        				mp.stop();
+	        				mp.release();
+		        			mp = null;
+	        			}
+	        			cancel();
 	        		} catch (IllegalStateException ex) {
 	        			ex.printStackTrace();
 	        		} 
@@ -522,7 +540,8 @@ public class SoundPoint extends Location {
 	            	nex.printStackTrace();
 	            }
 	        }
-	    }.start();
+	    };
+	    CountDown.start();
 	}
 
 }

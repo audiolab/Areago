@@ -22,12 +22,9 @@ public final class R {
         public static final int white=0x7f060000;
     }
     public static final class drawable {
-        public static final int areago_48dp=0x7f020000;
-        public static final int areago_default=0x7f020001;
-        public static final int audifonos=0x7f020002;
-        public static final int brujula=0x7f020003;
-        public static final int ic_action_search=0x7f020004;
-        public static final int ic_launcher=0x7f020005;
+        public static final int areago_default=0x7f020000;
+        public static final int ic_action_search=0x7f020001;
+        public static final int ic_launcher=0x7f020002;
     }
     public static final class id {
         public static final int ErrorGPS=0x7f0a0003;
@@ -63,32 +60,34 @@ public final class R {
         public static final int activity_main=0x7f090000;
     }
     public static final class string {
-        public static final int actualizacion_disponible=0x7f07000b;
+        public static final int actualizacion_disponible=0x7f07000d;
         /**   Main 
          */
         public static final int app_name=0x7f070000;
         /**   Paseo Preview 
          */
-        public static final int buscando_satelites=0x7f07000f;
-        public static final int cargando_rutas=0x7f070007;
-        public static final int configurar=0x7f070006;
-        public static final int descarga_disponible=0x7f07000a;
-        public static final int dipositivo_gps=0x7f070010;
+        public static final int buscando_satelites=0x7f070011;
+        public static final int cargando_rutas=0x7f070008;
+        public static final int configurar=0x7f070007;
+        public static final int descarga_disponible=0x7f07000c;
+        public static final int dipositivo_gps=0x7f070012;
+        public static final int error_data=0x7f070006;
         public static final int error_gps=0x7f070004;
-        public static final int error_no_escribir_tarjeta=0x7f07000d;
-        public static final int error_no_hay_paseos_memoria=0x7f07000c;
+        public static final int error_no_escribir_tarjeta=0x7f07000f;
+        public static final int error_no_hay_paseos_memoria=0x7f07000e;
         public static final int error_wifi=0x7f070005;
-        public static final int espera=0x7f070008;
-        public static final int gps_disponible=0x7f070011;
-        public static final int gps_no_disponible=0x7f070012;
-        public static final int gps_temporalmente_no_disponible=0x7f070013;
+        public static final int espera=0x7f070009;
+        public static final int gps_disponible=0x7f070013;
+        public static final int gps_no_disponible=0x7f070014;
+        public static final int gps_temporalmente_no_disponible=0x7f070015;
         public static final int loading_data=0x7f070001;
         public static final int menu_settings=0x7f070002;
-        public static final int proceso_descargando_paseo=0x7f07000e;
+        public static final int proceso_descargando_paseo=0x7f070010;
+        public static final int salir=0x7f07000a;
         public static final int title_activity_main=0x7f070003;
         /**   List Paseos 
          */
-        public static final int title_list_paseos=0x7f070009;
+        public static final int title_list_paseos=0x7f07000b;
     }
     public static final class style {
         public static final int AppTheme=0x7f080000;

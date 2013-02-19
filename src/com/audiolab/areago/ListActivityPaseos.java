@@ -109,6 +109,7 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 						ScrollView sv = new ScrollView(this);
 						
 						LayoutParams params = new LinearLayout.LayoutParams(300, LayoutParams.WRAP_CONTENT);
+						LayoutParams ImgParams = new LinearLayout.LayoutParams(300, 300);
 						LinearLayout layout = new LinearLayout(this);
 						layout.setOrientation(LinearLayout.VERTICAL);
 						layout.setBackgroundResource(R.color.white);
@@ -119,8 +120,7 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 						LayoutParams tparams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT);
 						//Imagen
 						ImageView img = new ImageView(this);
-						img.setLayoutParams(params);
-						//Toast.makeText(this,"Cargando paseo "+p.getTitle(),Toast.LENGTH_LONG).show();
+						img.setLayoutParams(ImgParams);
 						if (p.hasImage()) {
 							try {
 							if (!p.isDownload()) { // Si la imagen es todavía una url
@@ -133,7 +133,6 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 								  img.setImageBitmap(bitmap);
 							  } else {
 								  Log.d("AREAGO","Añadiendo imagen default a la descargada..");
-								  img.setImageResource(R.drawable.areago_default);
 							  }
 							  
 							} else { // La imagen ya está cargada como bitmap
@@ -150,6 +149,10 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 							img.setImageResource(R.drawable.areago_default);
 						}
 						img.setAdjustViewBounds(true);
+						img.setMaxWidth(512);
+						img.setMaxHeight(512);
+						img.setMinimumHeight(512);
+						img.setMinimumWidth(512);
 						img.setClickable(true);
 						img.setOnClickListener(this);
 						img.setId(p.getId());
@@ -235,7 +238,6 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 	private void getPaseos(String str) {
 
 		JSONArray jArray;
-		//Log.d("AREAGO",str);
 		try {
 			jArray = new JSONArray(str);
 		
@@ -303,15 +305,12 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 				Paseo walk = new Paseo(jObject.getInt("id"));
 				walk.setTitle(jObject.getString("name"));
 				// La descripción es muy larga.. trabajos con excerpt
-				//walk.setDescription(jObject.getString("description"));
 				walk.setDescription(jObject.getString("description"));
 				walk.setExcerpt(jObject.getString("excerpt"));
 				walk.setHash(jObject.getString("hash"));
 				walk.setPoints(jObject.getString("points"));
 				walk.setGrabaciones(jObject.getInt("recordings"));
 				walk.setIdioma(jObject.getString("language"));
-				//walks.add(walk);
-				//walks.add(jObject.getInt("id"),walk);
 				walk.setDownloaded();// El paseo ya está descargado
 				walk.setUpdated();//Esta actualizado por defecto
 				walks.put(jObject.getInt("id"),walk);
@@ -452,7 +451,7 @@ public class ListActivityPaseos extends ListActivity implements View.OnClickList
 				String path_walk = PATH_PASEOS + "/"+vClicked.getId();
 				fold = new File(path_walk);
 			    if (!fold.isDirectory()) fold.mkdir();
-				
+			    
 				while ((ze = zin.getNextEntry()) != null) {
 					 Log.v("Decompress", "Unzipping " + ze.getName());
 					 long lenghtOfFile = ze.getSize();

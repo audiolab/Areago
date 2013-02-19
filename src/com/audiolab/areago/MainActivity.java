@@ -17,6 +17,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -154,16 +155,16 @@ public class MainActivity extends Activity {
 //    }
 
 
-	private boolean init_wireless() {
-    	ConnectivityManager connManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
-    	NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-    	return mWifi.isAvailable();
+	private boolean isWifiEnabled() {
+		WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
+    	return wifiManager.isWifiEnabled();
 	}
 	
-	private boolean isConnected() {
+	private boolean isDataConnected() {
 		ConnectivityManager connManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
-		NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-		return mWifi.isConnected();
+		NetworkInfo mWifi = connManager.getActiveNetworkInfo();
+		if (mWifi != null) return mWifi.isConnected();
+		return false;
 	}
 	
 public void onResume() {
@@ -185,8 +186,8 @@ public void onResume() {
 	((TextView)findViewById(R.id.ErrorStorage)).setVisibility(View.INVISIBLE);
 	
 	//Wireless
-    if (!init_wireless()) { 
-    	Log.d("AREAGO","Wireless Inactivo. No podras descargar paseos nuevos.");
+    if (!isWifiEnabled()) { 
+    	Log.d("AREAGO","Wireless Inactivo. No podras escuchar los puntos Wifi.");
     	findViewById(R.id.imageView1).setClickable(false);
     	findViewById(R.id.ErrorWifi).setClickable(true);
     	((TextView)findViewById(R.id.ErrorWifi)).setText(R.string.error_wifi);
@@ -210,6 +211,15 @@ public void onResume() {
     	((TextView)findViewById(R.id.ErrorStorage)).setVisibility(View.VISIBLE);
     	((TextView)findViewById(R.id.ErrorStorage)).startAnimation(fadeIN);
         return;
+    }
+    	//Wireless
+    else if (!isDataConnected()) { 
+        	Log.d("AREAGO","Sin conexión de datos. No se decaragarn nuevos paseos.");
+        	findViewById(R.id.imageView1).setClickable(true); // permitimos seguir con los paseos en memeria
+        	findViewById(R.id.ErrorWifi).setClickable(true);
+        	((TextView)findViewById(R.id.ErrorWifi)).setText(R.string.error_data);
+        	((TextView)findViewById(R.id.ErrorWifi)).setVisibility(View.VISIBLE);
+        	((TextView)findViewById(R.id.ErrorWifi)).startAnimation(fadeIN);
     } else {
     	findViewById(R.id.imageView1).setClickable(true);
     }
@@ -246,7 +256,7 @@ public void onPause() {
     					try {
     							// TODO: Activar cuando esté en funcionamiento la web
     						Intent i = new Intent("com.audiolab.areago.ListActivityPaseos");
-    						if (isConnected()) i.putExtra("json", init_rutas());
+    						if (isDataConnected()) i.putExtra("json", init_rutas());
     						dialog.dismiss();
     						startActivity(i);
     					} catch (Exception e) {

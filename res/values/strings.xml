@@ -6,9 +6,11 @@
     <string name="title_activity_main">Areago</string>
     <string name="error_gps">Piztu GPSa AREAGO martxan jartzeko</string>
     <string name="error_wifi">Soinu ibilaldiak deskargatzeko interneterako konexioa beharrezkoa da</string>
+    <string name="error_data">Sin conexión de datos. No se decaragarn nuevos paseos.</string>
     <string name="configurar">Konfiguratu</string>
     <string name="cargando_rutas">Ibilaldiak kargatzen</string>
     <string name="espera">Itxaron, mesedez</string>
+    <string name="salir">Salir [ES]</string>
     <!--  List Paseos -->
     <string name="title_list_paseos">Ibilaldiak</string>
     <string name="descarga_disponible">Deskarga eskuragarri</string>

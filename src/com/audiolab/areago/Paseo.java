@@ -179,19 +179,21 @@ public class Paseo {
 	}
 	
 	public void pause() {
-		
-//		for (int i=0; i<this.puntos.size(); i++) {
-//			try {
-//				this.puntos.get(i).setStatus(SoundPoint.STATUS_PAUSED);
-//			} catch (NullPointerException e) {
-//				Log.e("AREAGO","Error NullPointer al cambiar estado del punto");
-//			}
-//			Log.d("AREAGO","Pausando punto "+i);
-//		}
-		
 		for (int i=0; i<this.puntos.size(); i++) {
 			try {
-				this.puntos.get(i).pausePlaying();
+				if (this.puntos.get(i).getType() != SoundPoint.TYPE_TOGGLE) this.puntos.get(i).pausePlaying();
+			} catch (NullPointerException e) {
+				Log.e("AREAGO","Error NullPointer al pausar el punto");
+			}
+			Log.d("AREAGO","Pausando punto "+i);
+		}
+	}
+	
+	public void location_pause() {
+		// Solo  pausamos los puntos relacionados con el location
+		for (int i=0; i<this.puntos.size(); i++) {
+			try {
+				if (this.puntos.get(i).getType() != SoundPoint.TYPE_WIFI_PLAY_LOOP || this.puntos.get(i).getType() != SoundPoint.TYPE_TOGGLE ) this.puntos.get(i).pausePlaying();
 			} catch (NullPointerException e) {
 				Log.e("AREAGO","Error NullPointer al pausar el punto");
 			}

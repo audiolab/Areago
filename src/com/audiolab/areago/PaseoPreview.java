@@ -23,8 +23,10 @@ import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.ViewGroup.LayoutParams;
 import android.webkit.WebView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -82,7 +84,8 @@ public class PaseoPreview extends Activity  {
 		if (JSONPoints.length()>0) { walk.create_points(JSONPoints); } else {Toast.makeText(this,"Este paseo no tiene puntos",Toast.LENGTH_LONG).show();}
 		
 		if (walk.hasImage()) { ((ImageView)findViewById(R.id.imagen)).setImageBitmap(walk.getBitmap()); }
-		else { ((ImageView)findViewById(R.id.imagen)).setImageResource(R.drawable.areago_48dp);}
+		else { ((ImageView)findViewById(R.id.imagen)).setImageResource(R.drawable.areago_default);}
+		
 		((ImageView)findViewById(R.id.imagen)).setAdjustViewBounds(true);
 
 		((TextView)findViewById(R.id.titulo_imagen)).setText(walk.getTitle());
@@ -139,6 +142,7 @@ public class PaseoPreview extends Activity  {
 	public void onPause() {
 		super.onPause();
 		Log.d("AREAGO","onPause");
+		// No debería cambiar nada, y dejar la aplicación seguir corriendo mientras hacemos otra historia
 	}
 	
 	public void onStop() {
@@ -169,6 +173,24 @@ public class PaseoPreview extends Activity  {
 		super.onDestroy();
 		while (!exec.isShutdown()) { exec.shutdownNow(); }
 		Log.d("AREAGO","onDestroy");
+		
+//		while (!exec.isShutdown()) { exec.shutdownNow(); }
+//		this.walk.pause();
+//		this.walk.stop();
+//		try {
+//			locManager.removeUpdates(locationListener);
+//			((TextView)findViewById(R.id.status_gps)).setVisibility(View.VISIBLE);
+//    		((TextView)findViewById(R.id.status_gps)).setText("Dispositivo GPS desactivado");
+//		} catch (IllegalArgumentException e) {
+//			e.printStackTrace();
+//		}
+//		
+//		try { 
+//			unregisterReceiver(receiver); // TODO: Peta cuando no está ejecutandose el receiver y se quiere parar...
+//		} catch (RuntimeException e) {
+//			e.printStackTrace();
+//		}
+		
 	}
 	
 	// INFO: Gestión del GPS
@@ -178,7 +200,6 @@ public class PaseoPreview extends Activity  {
     		// TODO Auto-generated method stub    	
     		if (location != null) {
     			((TextView)findViewById(R.id.gps)).setText("Layer: "+walk.getLayer()+" Posición: "+location.getLatitude()+"/"+location.getLongitude()+"/"+location.getAccuracy());
-//    			((TextView)findViewById(R.id.status_gps)).setEnabled(false);
         		((TextView)findViewById(R.id.status_gps)).setVisibility(View.GONE);
     			SoundPoint nl = new SoundPoint(location);
     			Log.d("AREAGO","Location changed");
@@ -196,6 +217,7 @@ public class PaseoPreview extends Activity  {
     		Log.d("AREAGO","GPS Disable");
     		((TextView)findViewById(R.id.status_gps)).setText("Dispositivo GPS desactivado");
     		((TextView)findViewById(R.id.status_gps)).setVisibility(View.VISIBLE);
+    		walk.location_pause();
     	}
 
     	public void onProviderEnabled(String provider) {
@@ -215,12 +237,12 @@ public class PaseoPreview extends Activity  {
     			break;
     		case android.location.LocationProvider.OUT_OF_SERVICE:
     			st=getString(R.string.gps_no_disponible);
-    			walk.pause();
+    			walk.location_pause();
     			Log.d("AREAGO","Pausamos el paseo por fuera de servicio");
     			break;
     		case android.location.LocationProvider.TEMPORARILY_UNAVAILABLE:
     			st=getString(R.string.gps_temporalmente_no_disponible);
-    			walk.pause();
+    			walk.location_pause();
     			Log.d("AREAGO","Pausamos el paseo por temporalmente no disponible");
     			break;
     		}

@@ -20,7 +20,7 @@
     	    android:background="#fff"
     	    android:contentDescription="Areago"
     	    android:onClick="onClick"
-    	    android:src="@drawable/areago_48dp"
+    	    android:src="@drawable/areago_default"
     	    android:visibility="invisible" />
 
     	<TextView
